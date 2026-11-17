@@ -1,0 +1,223 @@
+import 'dotenv/config';
+import express from 'express';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { autocompleteAkakce, getAkakceCacheSummary } from './src/mcp/akakceClient.ts';
+import {
+  executeMcpTool,
+  listMcpResources,
+  listMcpTools,
+  readMcpResource,
+} from './src/mcp/tools.ts';
+import type { JsonRpcRequest, JsonRpcResponse } from './src/mcp/types.ts';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const PORT = Number(process.env.PORT) || 3000;
+const SERVER_STARTED_AT = Date.now();
+
+async function startServer() {
+  const app = express();
+  app.use(express.json({ limit: '1mb' }));
+
+  app.get('/api/health', (_req, res) => {
+    const cache = getAkakceCacheSummary();
+    res.json({
+      status: 'ok',
+      service: 'Akakce-MCP',
+      targetSite: 'https://www.akakce.com',
+      protocolVersion: '2025-03-26',
+      toolsRegistered: listMcpTools().length,
+      resourcesRegistered: listMcpResources().length,
+      cachedSearches: cache.cachedSearches,
+      cachedProductDetails: cache.cachedProductDetails,
+      uptimeSeconds: Math.floor((Date.now() - SERVER_STARTED_AT) / 1000),
+      checkedAt: new Date().toISOString(),
+    });
+  });
+
+  app.get('/api/akakce/autocomplete', async (req, res) => {
+    const q = typeof req.query.q === 'string' ? req.query.q.trim() : '';
+    if (!q) {
+      res.json({ query: '', groups: [] });
+      return;
+    }
+    try {
+      const data = await autocompleteAkakce(q);
+      res.json(data);
+    } catch (err) {
+      res.status(502).json({
+        error: err instanceof Error ? err.message : 'Akakçe autocomplete erişilemedi.',
+      });
+    }
+  });
+
+  app.get('/mcp', (_req, res) => {
+    res.json({
+      name: 'akakce-mcp',
+      version: '1.0.0',
+      targetSite: 'https://www.akakce.com',
+      protocol: 'Model Context Protocol (JSON-RPC 2.0 over HTTP)',
+      endpoint: '/mcp',
+      capabilities: {
+        tools: { listChanged: false },
+        resources: { subscribe: false, listChanged: false },
+      },
+      tools: listMcpTools().map((t) => ({ name: t.name, description: t.description })),
+    });
+  });
+
+  app.post('/mcp', async (req, res) => {
+    const body = req.body as Partial<JsonRpcRequest> | undefined;
+
+    if (!body || body.jsonrpc !== '2.0' || typeof body.method !== 'string') {
+      const errResp: JsonRpcResponse = {
+        jsonrpc: '2.0',
+        id: body?.id ?? null,
+        error: {
+          code: -32600,
+          message: 'Geçersiz JSON-RPC 2.0 isteği. { jsonrpc: "2.0", id, method } bekleniyor.',
+        },
+      };
+      res.status(400).json(errResp);
+      return;
+    }
+
+    const id = body.id ?? null;
+    const params = (body.params ?? {}) as Record<string, unknown>;
+
+    try {
+      if (body.method === 'initialize') {
+        res.json({
+          jsonrpc: '2.0',
+          id,
+          result: {
+            protocolVersion: '2025-03-26',
+            capabilities: {
+              tools: { listChanged: false },
+              resources: { subscribe: false, listChanged: false },
+            },
+            serverInfo: {
+              name: 'akakce-mcp',
+              version: '1.0.0',
+            },
+          },
+        });
+        return;
+      }
+
+      if (body.method === 'notifications/initialized' || body.method === 'ping') {
+        res.json({ jsonrpc: '2.0', id, result: {} });
+        return;
+      }
+
+      if (body.method === 'tools/list') {
+        res.json({
+          jsonrpc: '2.0',
+          id,
+          result: {
+            tools: listMcpTools(),
+          },
+        });
+        return;
+      }
+
+      if (body.method === 'tools/call') {
+        const toolName = typeof params.name === 'string' ? params.name : '';
+        const toolArgs =
+          params.arguments && typeof params.arguments === 'object'
+            ? (params.arguments as Record<string, unknown>)
+            : {};
+
+        if (!toolName) {
+          res.status(400).json({
+            jsonrpc: '2.0',
+            id,
+            error: { code: -32602, message: 'Eksik zorunlu parametre: params.name' },
+          });
+          return;
+        }
+
+        const result = await executeMcpTool(toolName, toolArgs);
+        res.json({
+          jsonrpc: '2.0',
+          id,
+          result,
+        });
+        return;
+      }
+
+      if (body.method === 'resources/list') {
+        res.json({
+          jsonrpc: '2.0',
+          id,
+          result: {
+            resources: listMcpResources(),
+          },
+        });
+        return;
+      }
+
+      if (body.method === 'resources/read') {
+        const uri = typeof params.uri === 'string' ? params.uri : '';
+        if (!uri) {
+          res.status(400).json({
+            jsonrpc: '2.0',
+            id,
+            error: { code: -32602, message: 'Eksik zorunlu parametre: params.uri' },
+          });
+          return;
+        }
+        res.json({
+          jsonrpc: '2.0',
+          id,
+          result: readMcpResource(uri),
+        });
+        return;
+      }
+
+      res.status(404).json({
+        jsonrpc: '2.0',
+        id,
+        error: {
+          code: -32601,
+          message: `Yöntem bulunamadı: ${body.method}`,
+        },
+      });
+    } catch (err) {
+      res.status(500).json({
+        jsonrpc: '2.0',
+        id,
+        error: {
+          code: -32603,
+          message: err instanceof Error ? err.message : 'Sunucu hatası',
+        },
+      });
+    }
+  });
+
+  if (process.env.NODE_ENV !== 'production') {
+    const { createServer: createViteServer } = await import('vite');
+    const vite = await createViteServer({
+      server: { middlewareMode: true },
+      appType: 'spa',
+    });
+    app.use(vite.middlewares);
+  } else {
+    const distPath = path.resolve(__dirname, 'dist');
+    app.use(express.static(distPath));
+    app.get('*', (_req, res) => {
+      res.sendFile(path.join(distPath, 'index.html'));
+    });
+  }
+
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Akakce-MCP server listening on http://localhost:${PORT}`);
+  });
+}
+
+startServer().catch((err) => {
+  console.error('Failed to start Akakce-MCP server:', err);
+  process.exit(1);
+});

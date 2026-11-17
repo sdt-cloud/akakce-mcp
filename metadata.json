@@ -1,0 +1,6 @@
+{
+  "name": "PazarMCP",
+  "description": "Akakce and Cimri style Turkish price-comparison & marketing MCP server, live JSON-RPC playground, SKU normalizer, and TypeScript starter.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
