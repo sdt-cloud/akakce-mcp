@@ -44,3 +44,15 @@ npm run dev
 # Web arayüzü: http://localhost:3000
 # MCP HTTP ucu: http://localhost:3000/mcp
 ```
+
+---
+
+## Yasal Uyarı ve Sorumluluk Reddi (Legal Disclaimer)
+
+- **Resmi Olmayan Proje / Marka Bildirimi**: Bu proje bağımsız ve açık kaynaklı bir Model Context Protocol (MCP) entegrasyon örneğidir. **Akakçe.com** veya bağlı kuruluşları ile hiçbir resmi bağı, ortaklığı, sponsorluğu veya onayı bulunmamaktadır. "Akakçe" adı ve markası ilgili hak sahibine aittir; burada yalnızca hedeflenen kamuya açık web arayüzünü tanımlamak amacıyla kullanılmıştır.
+- **Yalnızca Eğitim, Araştırma ve Kişisel Kullanım**: Bu yazılım yalnızca kişisel fiyat takibi, geliştirici eğitimi ve teknik MCP protokolü araştırması amacıyla sunulmuştur. Ticari veri toplama, fiyat verilerinin yeniden satışı veya üçüncü taraf platformların altyapısına aşırı yük bindirecek (yüksek frekanslı / otomatik bot) kullanımlar amaçlanmamıştır.
+- **Hedef Site Kullanım Koşullarına Uyum**: Bu aracı çalıştıran her kullanıcı; hedef web sitesinin kullanım koşullarına (Terms of Service), `robots.txt` kurallarına, hız sınırlarına (rate limiting) ve yürürlükteki yerel/uluslararası mevzuata uymakla kendisi yükümlüdür.
+- **Sorumluluk Reddi ("OLDUĞU GİBİ" / "AS IS")**: Yazılım [MIT Lisansı](./LICENSE) kapsamında **"OLDUĞU GİBİ"** ve hiçbir açık ya da zımni garanti verilmeksizin sunulmaktadır. Bu yazılımın kullanımından, yanlış/eksik fiyat bilgisinden, IP/erişim kısıtlamalarından veya üçüncü taraf kullanım koşullarının ihlalinden doğabilecek hiçbir doğrudan veya dolaylı zarardan proje geliştiricileri veya katkıda bulunanlar sorumlu tutulamaz. Tüm risk ve sorumluluk aracı kullanan son kullanıcıya aittir.
+
+> **English Notice**: This is an unofficial, independent open-source MCP project provided **strictly for educational, research, and personal use** under the [MIT License](./LICENSE) **"AS IS" without warranty of any kind**. It is not affiliated with, endorsed by, or connected to Akakçe. Users are solely responsible for complying with the target website's Terms of Service, rate limits, and applicable laws. The authors assume no liability for any misuse or damages arising from using this software.
+
