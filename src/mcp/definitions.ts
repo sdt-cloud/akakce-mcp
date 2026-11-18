@@ -61,7 +61,7 @@ export const AKAKCE_MCP_TOOLS: McpToolDefinition[] = [
         productUrlOrId: {
           type: 'string',
           description:
-            'akakce_search çıktısından gelen Akakçe ürün URL adresi (ör. "https://www.akakce.com/...html") veya sayısal Akakçe ürün ID (ör. "625155494").',
+            'Tercihen akakce_search çıktısından gelen tam Akakçe ürün URL adresi (ör. "https://www.akakce.com/...html"); alternatif olarak sayısal Akakçe ürün ID (ör. "614642333") verilebilir.',
         },
         forceRefresh: {
           type: 'boolean',
@@ -82,7 +82,8 @@ export const AKAKCE_MCP_TOOLS: McpToolDefinition[] = [
       properties: {
         productUrlOrId: {
           type: 'string',
-          description: 'Akakçe ürün URL adresi veya sayısal Akakçe ürün ID.',
+          description:
+            'Tercihen akakce_search çıktısından gelen tam Akakçe ürün URL adresi (ör. "https://www.akakce.com/...html"); alternatif olarak sayısal ürün ID verilebilir.',
         },
         forceRefresh: {
           type: 'boolean',

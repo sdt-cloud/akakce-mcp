@@ -114,12 +114,25 @@ const rl = readline.createInterface({
   crlfDelay: Infinity,
 });
 
+let inFlightRequests = 0;
+let stdinClosed = false;
+
+function maybeExit() {
+  if (stdinClosed && inFlightRequests === 0) {
+    process.exit(0);
+  }
+}
+
 rl.on('line', (line) => {
   const trimmed = line.trim();
   if (!trimmed) return;
   try {
     const req = JSON.parse(trimmed) as JsonRpcRequest;
-    void handleRequest(req);
+    inFlightRequests += 1;
+    void handleRequest(req).finally(() => {
+      inFlightRequests -= 1;
+      maybeExit();
+    });
   } catch {
     writeResponse({
       jsonrpc: '2.0',
@@ -127,6 +140,16 @@ rl.on('line', (line) => {
       error: { code: -32700, message: 'Parse error: Geçersiz JSON-RPC satırı.' },
     });
   }
+});
+
+rl.on('close', () => {
+  stdinClosed = true;
+  maybeExit();
+});
+
+process.stdin.on('close', () => {
+  stdinClosed = true;
+  maybeExit();
 });
 
 console.error('Akakce MCP stdio sunucusu dinliyor');

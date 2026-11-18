@@ -4,8 +4,8 @@ Gerçek zamanlı olarak `akakce.com` ve `api6.akakce.com/autocomplete` uç nokta
 
 ## Özellikler
 - **`akakce_search`**: Akakçe.com canlı ürün araması (`popularity`, `lowest_price` / `s=2`, `highest_price` / `s=4`, kategori yönlendirmeli `,sayfa,sıra.html` desteği, `25/50/100` sayfalama ve `fetchAll` ile tüm sayfaları tarama).
-- **`akakce_get_product_offers`**: Seçilen ürünün tüm mağaza tekliflerini (`n11`, `Hepsiburada`, `Trendyol`, `Amazon`, `İdefix`, `PttAVM` vb.), kargo ve stok durumunu, varyantlarını ve teknik özelliklerini çeker.
-- **`akakce_get_price_history`**: Resmi Akakçe fiyat geçmişi tablosunu çıkarır.
+- **`akakce_get_product_offers`**: Seçilen ürünün tüm mağaza tekliflerini (`n11`, `Hepsiburada`, `Trendyol`, `Amazon`, `İdefix`, `PttAVM` vb.), kargo ve stok durumunu, varyantlarını ve teknik özelliklerini çeker *(en hızlı sonuç için doğrudan `akakceUrl` parametresi kullanmanız önerilir; soğuk oturumda sayısal `productId` de desteklenir)*.
+- **`akakce_get_price_history`**: Resmi Akakçe fiyat geçmişi tablosunu çıkarır *(doğrudan `akakceUrl` önerilir)*.
 - **`akakce_autocomplete`**: `api6.akakce.com/autocomplete` üzerinden anlık öneriler döndürür.
 - **`akakce_compare_product_prices`**: Arama sonuçlarındaki ilk N ürünün satıcı tekliflerini paralel karşılaştırır.
 

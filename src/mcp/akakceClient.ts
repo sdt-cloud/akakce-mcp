@@ -650,6 +650,9 @@ async function resolveProductTargetUrl(productUrlOrId: string): Promise<string> 
   if (cached?.akakceUrl) {
     return cached.akakceUrl;
   }
+  if (/^\d+$/.test(trimmed)) {
+    return `${AKAKCE_BASE}/urun/en-ucuz-x-fiyati,${trimmed}.html`;
+  }
 
   // Fallback: look up numeric ID or model string via Akakçe search
   const ac = await autocompleteAkakce(trimmed);
