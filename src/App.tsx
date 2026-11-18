@@ -1,27 +1,28 @@
 import { useMemo, useState } from 'react';
 import { ApiHealthBar } from './components/ApiHealthBar';
-import { LiveSearchView } from './components/LiveSearchView';
+import { BrochuresView } from './components/BrochuresView';
+import { CatalogExplorerView } from './components/CatalogExplorerView';
 import { McpPlaygroundView } from './components/McpPlaygroundView';
 import { SetupCodeView } from './components/SetupCodeView';
 import { Sidebar } from './components/Sidebar';
 import { TopBar, type WorkspaceTab } from './components/TopBar';
 import { type Language } from './i18n/translations';
-import { AKAKCE_MCP_TOOLS } from './mcp/definitions';
+import { AKTUEL_MCP_TOOLS } from './mcp/definitions';
 
 export default function App() {
   const [language, setLanguage] = useState<Language>('tr');
-  const [activeTab, setActiveTab] = useState<WorkspaceTab>('search');
-  const [selectedToolName, setSelectedToolName] = useState<string>('akakce_search');
+  const [activeTab, setActiveTab] = useState<WorkspaceTab>('catalog');
+  const [selectedToolName, setSelectedToolName] = useState<string>('aktuel_bu_hafta');
   const [copiedConfig, setCopiedConfig] = useState(false);
 
-  const tools = useMemo(() => AKAKCE_MCP_TOOLS, []);
+  const tools = useMemo(() => AKTUEL_MCP_TOOLS, []);
 
   const handleCopyConfig = async () => {
     const origin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000';
     const config = JSON.stringify(
       {
         mcpServers: {
-          'akakce-mcp': {
+          'aktuel-mcp': {
             url: `${origin}/mcp`,
           },
         },
@@ -61,7 +62,8 @@ export default function App() {
         />
 
         <main className="flex-1 p-4 sm:p-6 lg:p-8 min-w-0">
-          {activeTab === 'search' && <LiveSearchView language={language} />}
+          {activeTab === 'catalog' && <CatalogExplorerView language={language} />}
+          {activeTab === 'brochures' && <BrochuresView language={language} />}
           {activeTab === 'playground' && (
             <McpPlaygroundView
               language={language}

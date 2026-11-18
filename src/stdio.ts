@@ -36,7 +36,7 @@ async function handleRequest(req: JsonRpcRequest) {
             resources: { subscribe: false, listChanged: false },
           },
           serverInfo: {
-            name: 'akakce-mcp',
+            name: 'aktuel-mcp',
             version: '1.0.0',
           },
         },
@@ -81,10 +81,11 @@ async function handleRequest(req: JsonRpcRequest) {
 
     if (req.method === 'resources/read') {
       const uri = String(req.params?.uri ?? '');
+      const resourceResult = await readMcpResource(uri);
       writeResponse({
         jsonrpc: '2.0',
         id,
-        result: readMcpResource(uri),
+        result: resourceResult,
       });
       return;
     }
@@ -103,7 +104,7 @@ async function handleRequest(req: JsonRpcRequest) {
       id,
       error: {
         code: -32000,
-        message: err instanceof Error ? err.message : 'Akakçe MCP stdio sunucu hatası',
+        message: err instanceof Error ? err.message : 'Aktüel MCP stdio sunucu hatası',
       },
     });
   }
@@ -152,4 +153,4 @@ process.stdin.on('close', () => {
   maybeExit();
 });
 
-console.error('Akakce MCP stdio sunucusu dinliyor');
+console.error('Aktuel MCP stdio sunucusu dinliyor');

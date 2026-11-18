@@ -1,137 +1,232 @@
 import type { McpResourceDefinition, McpToolDefinition } from './types.ts';
 
-export const AKAKCE_MCP_TOOLS: McpToolDefinition[] = [
+export const AKTUEL_MCP_TOOLS: McpToolDefinition[] = [
   {
-    name: 'akakce_search',
-    title: 'Akakçe Canlı Ürün Arama',
+    name: 'aktuel_bu_hafta',
+    title: 'Bu Haftanın Aktüel Katalogları',
     description:
-      'Akakçe.com arama sayfasını (/arama/?q=...) canlı olarak sorgular; eşleşen ürünleri, en düşük TL fiyatlarını, satıcı sayılarını ve Akakçe ürün linklerini döndürür.',
+      'BİM, A101 ve ŞOK marketlerinden seçilenin (veya hepsinin) bu haftaki güncel aktüel indirim kataloğunu, ürün fiyatlarını, geçerlilik tarihlerini ve broşür bilgilerini canlı getirir.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        market: {
+          type: 'string',
+          description: 'Kataloğu çekilecek market: bim, a101, sok veya hepsi (varsayılan: hepsi).',
+          enum: ['bim', 'a101', 'sok', 'hepsi'],
+          default: 'hepsi',
+        },
+        onlyActiveOrUpcoming: {
+          type: 'boolean',
+          description: 'true olduğunda yalnızca şu an aktif veya yaklaşan kampanyaları döndürür (varsayılan: true).',
+          default: true,
+        },
+        limitPerMarket: {
+          type: 'number',
+          description: 'Her market için döndürülecek maksimum ürün sayısı (varsayılan: 60).',
+          default: 60,
+        },
+        forceRefresh: {
+          type: 'boolean',
+          description: '30 dakikalık önbelleği atlayıp market kataloglarını canlı yeniler.',
+          default: false,
+        },
+      },
+      required: ['market'],
+    },
+  },
+  {
+    name: 'aktuel_urun_ara',
+    title: 'Aktüel Ürün Arama',
+    description:
+      'Aranan ürünün (ör. "termos", "kettle", "televizyon", "matkap") bu hafta BİM, A101 veya ŞOK aktüel kataloglarına gelip gelmediğini bulanık (yazım hatası toleranslı) ve eş anlamlı (ör. kettle → su ısıtıcı, airfryer → yağsız fritöz) eşleştirme ile arar.',
     inputSchema: {
       type: 'object',
       properties: {
         query: {
           type: 'string',
-          description:
-            'Akakçe.com üzerinde aranacak ürün adı, model veya kategori (ör. "Samsung A35", "iPhone 16", "Dyson V15").',
+          description: 'Aranacak ürün adı, marka veya anahtar kelime (ör. "termos", "QLED TV", "Piranha").',
+        },
+        market: {
+          type: 'string',
+          description: 'Aranacak market kapsamı: hepsi (varsayılan), bim, a101 veya sok.',
+          enum: ['hepsi', 'bim', 'a101', 'sok'],
+          default: 'hepsi',
+        },
+        category: {
+          type: 'string',
+          description: 'İsteğe bağlı kategori filtresi: hepsi (varsayılan), elektronik, mutfak, kamp, ev_yasam, yapi_oto, oyuncak, giyim, gida.',
+          enum: [
+            'hepsi',
+            'elektronik',
+            'mutfak',
+            'kamp',
+            'ev_yasam',
+            'yapi_oto',
+            'oyuncak',
+            'giyim',
+            'gida',
+            'diger',
+          ],
+          default: 'hepsi',
         },
         sortBy: {
           type: 'string',
-          description:
-            'Akakçe sıralama ölçütü: popularity (varsayılan), lowest_price (en düşük fiyat), highest_price (en yüksek fiyat).',
-          enum: ['popularity', 'lowest_price', 'highest_price'],
-          default: 'popularity',
+          description: 'Sıralama ölçütü: relevance (ilgi), lowest_price (en ucuz), highest_price (en pahalı).',
+          enum: ['relevance', 'lowest_price', 'highest_price'],
+          default: 'relevance',
         },
-        page: {
-          type: 'number',
-          description: 'Sayfa numarası (limit boyutuna göre sayfalanır, varsayılan: 1).',
-          default: 1,
+        timing: {
+          type: 'string',
+          description: 'Zaman filtresi: hepsi (varsayılan), aktif (satışta) veya yaklasan (gelecek kataloglar).',
+          enum: ['hepsi', 'aktif', 'yaklasan'],
+          default: 'hepsi',
         },
         limit: {
           type: 'number',
-          description: 'Sayfa başına döndürülecek ürün sayısı (ör. 25, 50, 100 veya 2000; varsayılan: 50).',
+          description: 'Döndürülecek maksimum sonuç sayısı (varsayılan: 50).',
           default: 50,
         },
-        fetchAll: {
-          type: 'boolean',
-          description: 'true olduğunda Akakçe üzerindeki arama sayfalarını (16 sayfalık bloklar halinde) tarayıp tüm ürünleri döndürür; devamı varsa nextAkakcePage ile devam edilir.',
-          default: false,
-        },
-        startAkakcePage: {
-          type: 'number',
-          description: 'fetchAll=true iken sonraki bloktan devam etmek için başlangıç Akakçe sayfa numarası (varsayılan: 1).',
-          default: 1,
-        },
-        forceRefresh: {
-          type: 'boolean',
-          description: '3 dakikalık önbelleği atlayıp Akakçe.com üzerinden taze veri çeker.',
-          default: false,
-        },
       },
       required: ['query'],
     },
   },
   {
-    name: 'akakce_get_product_offers',
-    title: 'Akakçe Canlı Satıcı Fiyatları',
+    name: 'aktuel_kategori',
+    title: 'Kategori Bazlı Aktüel Karşılaştırma',
     description:
-      'Belirli bir Akakçe ürün sayfasına girerek tüm mağaza tekliflerini (n11, Hepsiburada, Trendyol, Amazon, İdefix, PttAVM), kargo bilgisini, stok durumunu ve teknik özellikleri getirir.',
+      'Belirli bir kategorideki (elektronik, mutfak, kamp, ev_yasam, yapi_oto, oyuncak, giyim, gida) haftalık aktüel fırsatlarını BİM, A101 ve ŞOK arasında fiyat sırasıyla karşılaştırır.',
     inputSchema: {
       type: 'object',
       properties: {
-        productUrlOrId: {
+        kategori: {
           type: 'string',
-          description:
-            'Tercihen akakce_search çıktısından gelen tam Akakçe ürün URL adresi (ör. "https://www.akakce.com/...html"); alternatif olarak sayısal Akakçe ürün ID (ör. "614642333") verilebilir.',
+          description: 'Filtrelenecek ürün kategorisi.',
+          enum: [
+            'elektronik',
+            'mutfak',
+            'kamp',
+            'ev_yasam',
+            'yapi_oto',
+            'oyuncak',
+            'giyim',
+            'gida',
+            'hepsi',
+          ],
+          default: 'elektronik',
         },
-        forceRefresh: {
-          type: 'boolean',
-          description: 'Önbelleği atlayıp satıcı listesini Akakçe’den yeniden çeker.',
-          default: false,
-        },
-      },
-      required: ['productUrlOrId'],
-    },
-  },
-  {
-    name: 'akakce_get_price_history',
-    title: 'Akakçe Fiyat Geçmişi Tablosu',
-    description:
-      'Bir Akakçe ürün sayfasındaki resmi Fiyat Değişimi tablosunu (tarih, en ucuz fiyat, artış/düşüş miktarı ve % değişim) canlı olarak çıkarır.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        productUrlOrId: {
+        market: {
           type: 'string',
-          description:
-            'Tercihen akakce_search çıktısından gelen tam Akakçe ürün URL adresi (ör. "https://www.akakce.com/...html"); alternatif olarak sayısal ürün ID verilebilir.',
-        },
-        forceRefresh: {
-          type: 'boolean',
-          description: 'Önbelleği atlayıp fiyat geçmişini yeniden çeker.',
-          default: false,
-        },
-      },
-      required: ['productUrlOrId'],
-    },
-  },
-  {
-    name: 'akakce_autocomplete',
-    title: 'Akakçe Hızlı Öneri (Autocomplete)',
-    description:
-      'Akakçe resmi otomatik tamamlama API ucunu (api6.akakce.com/autocomplete) sorgulayarak eşleşen ürün, kategori ve marka önerilerini döndürür.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        query: {
-          type: 'string',
-          description: 'Tamamlanacak ürün veya marka metni (ör. "samsung a3", "airpods").',
-        },
-      },
-      required: ['query'],
-    },
-  },
-  {
-    name: 'akakce_compare_product_prices',
-    title: 'Akakçe Arama + Satıcı Karşılaştırma',
-    description:
-      'Önce Akakçe’de ürün araması yapar, ardından ilk N eşleşen ürünün satıcı sayfalarına paralel girerek en ucuz mağaza ve satıcı listesini tek yanıtta özetler.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        query: {
-          type: 'string',
-          description: 'Aranacak ürün adı veya modeli (ör. "Samsung A35 256 GB", "PlayStation 5 Slim").',
-        },
-        topProducts: {
-          type: 'number',
-          description: 'Satıcı listesi incelenecek ilk ürün sayısı (1–5 arası, varsayılan: 3).',
-          default: 3,
+          description: 'Karşılaştırılacak market: hepsi (varsayılan), bim, a101 veya sok.',
+          enum: ['hepsi', 'bim', 'a101', 'sok'],
+          default: 'hepsi',
         },
         sortBy: {
           type: 'string',
-          description: 'Arama sıralaması.',
-          enum: ['popularity', 'lowest_price', 'highest_price'],
-          default: 'popularity',
+          description: 'Fiyat sıralaması: lowest_price veya highest_price.',
+          enum: ['lowest_price', 'highest_price'],
+          default: 'lowest_price',
+        },
+        limit: {
+          type: 'number',
+          description: 'Döndürülecek maksimum ürün sayısı (varsayılan: 60).',
+          default: 60,
+        },
+      },
+      required: ['kategori'],
+    },
+  },
+  {
+    name: 'aktuel_takvim',
+    title: 'Haftalık Aktüel Kampanya Takvimi',
+    description:
+      'BİM (Salı/Cuma), A101 (Perşembe/Hafta Sonu) ve ŞOK (Çarşamba/Cumartesi) aktüel tarihlerini listeler; "yarın hangi markete ne geliyor?" sorularını yanıtlar.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        market: {
+          type: 'string',
+          description: 'Market filtresi: hepsi, bim, a101 veya sok.',
+          enum: ['hepsi', 'bim', 'a101', 'sok'],
+          default: 'hepsi',
+        },
+        gun: {
+          type: 'string',
+          description: 'Gün filtresi (ör. hepsi, sali, carsamba, persembe, cuma, cumartesi).',
+          enum: ['hepsi', 'sali', 'carsamba', 'persembe', 'cuma', 'cumartesi', 'pazar'],
+          default: 'hepsi',
+        },
+        durum: {
+          type: 'string',
+          description: 'Kampanya zaman durumu: hepsi, aktif veya yaklasan.',
+          enum: ['hepsi', 'aktif', 'yaklasan'],
+          default: 'hepsi',
+        },
+      },
+    },
+  },
+  {
+    name: 'aktuel_liste_tara',
+    title: 'Toplu İhtiyaç Listesi Tarayıcı',
+    description:
+      'Birden fazla ürün ihtiyacını (ör. ["termos", "matkap", "televizyon"]) tek istekte 3 marketin aktüellerinde tarar; her kalem için en ucuz eşleşmeyi ve tahmini sepet toplamını döndürür.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        items: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Aranacak ürün listesi (ör. ["televizyon", "tava", "matkap"]).',
+          default: ['televizyon', 'matkap', 'tava'],
+        },
+        market: {
+          type: 'string',
+          description: 'Taranacak market: hepsi, bim, a101 veya sok.',
+          enum: ['hepsi', 'bim', 'a101', 'sok'],
+          default: 'hepsi',
+        },
+      },
+      required: ['items'],
+    },
+  },
+  {
+    name: 'aktuel_brosurler',
+    title: 'Broşür ve Afiş Görselleri',
+    description:
+      'BİM, A101 ve ŞOK marketlerinin güncel aktüel broşür sayfalarının yüksek çözünürlüklü görsel URL adreslerini ve geçerlilik tarihlerini döndürür.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        market: {
+          type: 'string',
+          description: 'Market seçimi: hepsi, bim, a101 veya sok.',
+          enum: ['hepsi', 'bim', 'a101', 'sok'],
+          default: 'hepsi',
+        },
+        forceRefresh: {
+          type: 'boolean',
+          description: 'Önbelleği atlayıp güncel afiş bağlantılarını yeniler.',
+          default: false,
+        },
+      },
+    },
+  },
+  {
+    name: 'aktuel_piyasa_karsilastir',
+    title: 'Aktüel vs. Piyasa (Akakçe) Kontrolü',
+    description:
+      'Bir aktüel ürünün BİM/A101/ŞOK fiyatını canlı Akakçe çevrimiçi piyasa fiyatıyla karşılaştırarak gerçek bir indirim olup olmadığını analiz eder.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        query: {
+          type: 'string',
+          description: 'Karşılaştırılacak aktüel ürün adı veya modeli (ör. "Onvo QLED TV", "Keysmart Buzdolabı").',
+        },
+        market: {
+          type: 'string',
+          description: 'Aktüel ürünün aranacağı market: hepsi, bim, a101 veya sok.',
+          enum: ['hepsi', 'bim', 'a101', 'sok'],
+          default: 'hepsi',
         },
       },
       required: ['query'],
@@ -139,17 +234,23 @@ export const AKAKCE_MCP_TOOLS: McpToolDefinition[] = [
   },
 ];
 
-export const AKAKCE_MCP_RESOURCES: McpResourceDefinition[] = [
+export const AKTUEL_MCP_RESOURCES: McpResourceDefinition[] = [
   {
-    uri: 'mcp://akakce/server/info',
-    name: 'Akakçe MCP Sunucu Bilgisi',
-    description: 'Bağlı canlı Akakçe uç noktaları ve desteklenen MCP araç sözleşmesi.',
+    uri: 'mcp://aktuel/server/info',
+    name: 'Aktüel MCP Sunucu Bilgisi',
+    description: 'Bağlı market kaynakları (BİM, A101, ŞOK), önbellek süresi ve desteklenen MCP araç sözleşmesi.',
     mimeType: 'application/json',
   },
   {
-    uri: 'mcp://akakce/cache/recent',
-    name: 'Son Sorgulanan Akakçe Ürünleri',
-    description: 'Bu oturumda Akakçe.com üzerinden canlı çekilen son ürün kimlikleri ve URL önbelleği.',
+    uri: 'mcp://aktuel/takvim/bu-hafta',
+    name: 'Bu Haftanın Aktüel Takvimi',
+    description: 'BİM, A101 ve ŞOK için aktif ve yaklaşan aktüel kampanya tarihlerinin canlı özeti.',
+    mimeType: 'application/json',
+  },
+  {
+    uri: 'mcp://aktuel/marketler/durum',
+    name: 'Market Önbellek ve Kaynak Durumu',
+    description: 'BİM, A101 ve ŞOK kataloglarının son çekilme zamanları ve önbellekteki ürün sayıları.',
     mimeType: 'application/json',
   },
 ];

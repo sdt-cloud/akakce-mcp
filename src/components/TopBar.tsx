@@ -1,7 +1,7 @@
 import { Check, Copy } from 'lucide-react';
 import { TRANSLATIONS, type Language } from '../i18n/translations';
 
-export type WorkspaceTab = 'search' | 'playground' | 'setup';
+export type WorkspaceTab = 'catalog' | 'brochures' | 'playground' | 'setup';
 
 interface TopBarProps {
   language: Language;
@@ -21,7 +21,8 @@ export function TopBar({
   const t = TRANSLATIONS[language].topBar;
 
   const navItems: Array<{ id: WorkspaceTab; label: string }> = [
-    { id: 'search', label: t.nav.search },
+    { id: 'catalog', label: t.nav.catalog },
+    { id: 'brochures', label: t.nav.brochures },
     { id: 'playground', label: t.nav.playground },
     { id: 'setup', label: t.nav.setup },
   ];
@@ -31,10 +32,10 @@ export function TopBar({
       <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-8 px-4 py-3.5 sm:px-6">
         <button
           type="button"
-          onClick={() => onSelectTab('search')}
+          onClick={() => onSelectTab('catalog')}
           className="font-display text-lg font-bold tracking-tight text-slate-900 whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 rounded"
         >
-          Akakçe MCP
+          {t.brand}
         </button>
 
         <nav className="hidden md:flex items-center gap-7" aria-label="Primary Navigation">

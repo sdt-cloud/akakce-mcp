@@ -1,6 +1,6 @@
 {
-  "name": "akakce-mcp",
-  "description": "Resmi olmayan (unofficial), yalnızca eğitim ve kişisel kullanım amaçlı Akakçe MCP sunucusu.",
+  "name": "aktuel-mcp",
+  "description": "BİM, A101 ve Şok haftalık aktüel ürün katalogları, broşürleri ve piyasa karşılaştırması için Model Context Protocol (MCP) sunucusu.",
   "private": true,
   "version": "1.0.0",
   "license": "MIT",

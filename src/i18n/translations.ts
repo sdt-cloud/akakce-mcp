@@ -2,8 +2,10 @@ export type Language = 'tr' | 'en';
 
 export interface Translations {
   topBar: {
+    brand: string;
     nav: {
-      search: string;
+      catalog: string;
+      brochures: string;
       playground: string;
       setup: string;
     };
@@ -28,7 +30,8 @@ export interface Translations {
     languageLabel: string;
     sectionsLabel: string;
     sections: {
-      search: string;
+      catalog: string;
+      brochures: string;
       playground: string;
       setup: string;
     };
@@ -45,69 +48,80 @@ export interface Translations {
       description: string;
     }
   >;
-  searchView: {
+  categories: Record<string, string>;
+  timings: Record<string, string>;
+  catalogView: {
     kicker: string;
     title: string;
     subtitle: string;
     placeholder: string;
     searchButton: string;
-    searchingButton: string;
-    sortLabel: string;
-    sorts: {
-      popularity: string;
-      lowest_price: string;
-      highest_price: string;
-    };
+    loadingButton: string;
     forceRefreshLabel: string;
     quickQueries: string[];
-    autocompleteProducts: string;
+    marketAll: string;
+    timingAll: string;
+    sortLowest: string;
+    sortHighest: string;
+    sortRelevance: string;
     resultsTitle: string;
     resultsCountSuffix: string;
     cacheHitLabel: string;
     liveFetchLabel: string;
-    categoryRedirectNote: string;
-    openOnAkakce: string;
-    inspectOffersBtn: string;
-    offerCountSuffix: string;
-    followersSuffix: string;
-    discountPrefix: string;
     noResults: string;
-    initialPrompt: string;
-    detailsLoading: string;
-    sellersTab: string;
-    historyTab: string;
-    specsTab: string;
-    variantsTitle: string;
-    rankCol: string;
-    marketplaceSellerCol: string;
-    listingTitleCol: string;
-    shippingStockCol: string;
-    priceCol: string;
-    cheapestBadge: string;
-    noOffersParsed: string;
-    noHistoryParsed: string;
-    dateCol: string;
-    lowestHistoryCol: string;
-    changeCol: string;
-    percentCol: string;
-    minRecordedLabel: string;
-    maxRecordedLabel: string;
-    currentPriceLabel: string;
-    ratingLabel: string;
-    reviewsSuffix: string;
-    closeDetails: string;
-    perPageLabel: string;
-    allResultsOption: string;
-    crawlingAllNote: string;
-    loadingMoreLabel: string;
-    stopCrawlingLabel: string;
-    filterResultsPlaceholder: string;
-    akakcePagesSuffix: string;
+    loadingNote: string;
+    compareBtn: string;
+    comparingBtn: string;
+    openSourceBtn: string;
+    comparePanelTitle: string;
+    closePanel: string;
+    aktuelPriceLabel: string;
+    akakceLowestLabel: string;
+    verdictLabels: {
+      piyasadan_ucuz: string;
+      piyasayla_benzer: string;
+      piyasadan_pahali: string;
+      karsilastirilamadi: string;
+    };
+    onlineMatchesTitle: string;
+    noOnlineMatches: string;
+    campaignsStripTitle: string;
+    viewInBrochureBtn: string;
+  };
+  brochuresView: {
+    kicker: string;
+    title: string;
+    subtitle: string;
+    allMarkets: string;
+    refreshBtn: string;
+    loadingNote: string;
+    emptyNote: string;
+    pagesSuffix: string;
+    productsSuffix: string;
+    openOriginal: string;
+    closeModal: string;
+    pageLabel: string;
+    productsInBrochure: string;
+    filterProductsPlaceholder: string;
+    showAllProducts: string;
+    collapseProducts: string;
+    locateOnPage: string;
+    zoomIn: string;
+    zoomOut: string;
+    resetZoom: string;
+    showBoxes: string;
+    hideBoxes: string;
+    scanPage: string;
+    scanningPage: string;
     prevPage: string;
     nextPage: string;
-    pageLabel: string;
-    singleSellerNote: string;
-    searchOnAkakce: string;
+    detectedOnPageTitle: string;
+    brochureCatalogTitle: string;
+    noDetectionsYet: string;
+    selectedProductLabel: string;
+    notFoundOnScannedPages: string;
+    panHint: string;
+    cachedBadge: string;
   };
   playground: {
     kicker: string;
@@ -147,8 +161,10 @@ export interface Translations {
 export const TRANSLATIONS: Record<Language, Translations> = {
   tr: {
     topBar: {
+      brand: 'Aktüel MCP',
       nav: {
-        search: 'Canlı Arama',
+        catalog: 'Aktüel Katalog',
+        brochures: 'Afiş & Broşürler',
         playground: 'MCP Test Alanı',
         setup: 'Kurulum & Kod',
       },
@@ -161,7 +177,7 @@ export const TRANSLATIONS: Record<Language, Translations> = {
       checking: 'Kontrol Ediliyor',
       healthEndpoint: 'REST Sağlık',
       mcpEndpoint: 'MCP JSON-RPC',
-      targetLabel: 'Kaynak',
+      targetLabel: 'Marketler',
       toolsUnit: 'Araç',
       resourcesUnit: 'Kaynak',
       uptimeLabel: 'Çalışma',
@@ -173,107 +189,146 @@ export const TRANSLATIONS: Record<Language, Translations> = {
       languageLabel: 'Dil',
       sectionsLabel: 'Çalışma Alanı',
       sections: {
-        search: '01. Akakçe Canlı Arama',
-        playground: '02. MCP JSON-RPC Testi',
-        setup: '03. Kurulum ve Starter Kod',
+        catalog: '01. Haftalık Aktüel Katalog',
+        brochures: '02. Broşür & Afiş Galerisi',
+        playground: '03. MCP JSON-RPC Testi',
+        setup: '04. Kurulum ve Starter Kod',
       },
-      toolsLabel: 'Kayıtlı Akakçe Araçları',
+      toolsLabel: 'Kayıtlı Aktüel Araçları',
       endpoint: 'MCP Ucu',
       targetSite: 'Canlı Kaynak',
       currency: 'Para Birimi',
-      currencyValue: 'TRY (Akakçe Canlı)',
+      currencyValue: 'TRY (BİM · A101 · ŞOK)',
     },
     tools: {
-      akakce_search: {
-        title: 'Akakçe Canlı Ürün Arama',
+      aktuel_bu_hafta: {
+        title: 'Haftalık Aktüel Kataloğu',
         description:
-          'Akakçe.com arama sayfasını canlı sorgular; ürün adlarını, en düşük TL fiyatlarını, satıcı sayısını ve Akakçe linklerini döndürür.',
+          'BİM, A101 ve ŞOK marketlerinin bu haftaki güncel indirim kataloğunu, tarihlerini ve ürünlerini getirir.',
       },
-      akakce_get_product_offers: {
-        title: 'Canlı Satıcı Fiyatları',
+      aktuel_urun_ara: {
+        title: 'Aktüel Ürün Arama',
         description:
-          'Seçilen Akakçe ürün sayfasına girerek tüm mağaza tekliflerini, kargo durumunu, stok ve teknik özellikleri getirir.',
+          'Aranan ürünün bu hafta BİM, A101 veya ŞOK aktüellerine gelip gelmediğini yazım hatası toleranslı (fuzzy) ve eş anlamlı (kettle → su ısıtıcı) arama ile listeler.',
       },
-      akakce_get_price_history: {
-        title: 'Akakçe Fiyat Geçmişi',
+      aktuel_kategori: {
+        title: 'Kategori Karşılaştırma',
         description:
-          'Akakçe ürün sayfasındaki resmi Fiyat Değişimi tablosunu (tarih, en ucuz fiyat, TL ve % değişim) canlı olarak çıkarır.',
+          'Elektronik, mutfak, kamp veya yapı-oto kategorisindeki haftalık fırsatları 3 market arasında karşılaştırır.',
       },
-      akakce_autocomplete: {
-        title: 'Akakçe Hızlı Öneri',
+      aktuel_takvim: {
+        title: 'Haftalık Kampanya Takvimi',
         description:
-          'api6.akakce.com/autocomplete ucunu sorgulayarak ürün, kategori ve marka önerilerini anında döndürür.',
+          'Salı, Çarşamba, Perşembe, Cuma ve Cumartesi aktüel tarihlerini aktif ve yaklaşan olarak listeler.',
       },
-      akakce_compare_product_prices: {
-        title: 'Çoklu Satıcı Karşılaştırma',
+      aktuel_liste_tara: {
+        title: 'Toplu İhtiyaç Listesi',
         description:
-          'Akakçe’de arama yapıp ilk N ürünün mağaza sayfalarını paralel çekerek en ucuz satıcıları tek seferde özetler.',
+          'Birden fazla ürünü tek istekte 3 markette tarayıp en ucuz eşleşmeleri ve toplam maliyeti hesaplar.',
+      },
+      aktuel_brosurler: {
+        title: 'Broşür & Afiş Görselleri',
+        description:
+          'Yüksek çözünürlüklü BİM, A101 ve ŞOK broşür sayfalarının görsel URL listesini döndürür.',
+      },
+      aktuel_piyasa_karsilastir: {
+        title: 'Piyasa (Akakçe) Kontrolü',
+        description:
+          'Aktüel ürün fiyatını Akakçe’deki canlı online piyasa fiyatıyla karşılaştırıp fırsat analizini çıkarır.',
       },
     },
-    searchView: {
-      kicker: 'AKAKCE.COM CANLI MCP · POST /mcp (akakce_search)',
-      title: 'Akakçe Canlı Arama ve Fiyat Karşılaştırma',
+    categories: {
+      hepsi: 'Tüm Kategoriler',
+      elektronik: 'Elektronik',
+      mutfak: 'Mutfak',
+      kamp: 'Kamp',
+      ev_yasam: 'Ev & Yaşam',
+      yapi_oto: 'Yapı & Oto',
+      oyuncak: 'Oyuncak',
+      giyim: 'Giyim',
+      gida: 'Gıda',
+      diger: 'Diğer',
+    },
+    timings: {
+      hepsi: 'Tüm Tarihler',
+      aktif: 'Aktif Katalog',
+      yaklasan: 'Yaklaşan',
+      gecmis: 'Geçmiş',
+    },
+    catalogView: {
+      kicker: 'BİM · A101 · ŞOK CANLI MCP · POST /mcp',
+      title: 'Haftalık Aktüel Ürünler ve Fiyat Karşılaştırma',
       subtitle:
-        'Buradan yaptığınız her arama doğrudan POST /mcp üzerinden Akakçe.com’a bağlanır; canlı arama sonuçlarını, mağaza tekliflerini ve fiyat geçmişini gösterir.',
-      placeholder: 'Akakçe’de ara (ör. Samsung A35, Samsung A37, iPhone 16, Dyson V15, Çamaşır Makinesi)...',
-      searchButton: 'Akakçe’de Ara',
-      searchingButton: 'Akakçe taranıyor...',
-      sortLabel: 'Sıralama',
-      sorts: {
-        popularity: 'Akakçe Popülerliği',
-        lowest_price: 'En Düşük Fiyat',
-        highest_price: 'En Yüksek Fiyat',
-      },
-      forceRefreshLabel: 'Önbelleği Atla',
-      quickQueries: ['Samsung A35', 'Samsung A37', 'iPhone 16', 'Dyson V15', 'Çamaşır Makinesi'],
-      autocompleteProducts: 'Akakçe Anlık Önerileri',
-      resultsTitle: 'Akakçe Arama Sonuçları',
+        'BİM, A101 ve ŞOK marketlerinin bu haftaki aktüel kataloglarını canlı tarayın; kategoriye veya tarihe göre filtreleyin ve Akakçe piyasa fiyatıyla kıyaslayın.',
+      placeholder: 'Aktüellerde ara (ör. TV, matkap, termos, tava, buzdolabı, nevresim)...',
+      searchButton: 'Katalogda Ara',
+      loadingButton: 'Taranıyor...',
+      forceRefreshLabel: 'Canlı Yenile',
+      quickQueries: ['TV', 'Matkap', 'Termos', 'Tava', 'Buzdolabı', 'Oyuncak'],
+      marketAll: 'Tüm Marketler',
+      timingAll: 'Tüm Tarihler',
+      sortLowest: 'En Ucuz',
+      sortHighest: 'En Pahalı',
+      sortRelevance: 'İlgili',
+      resultsTitle: 'Aktüel Ürün Listesi',
       resultsCountSuffix: 'ürün',
       cacheHitLabel: 'Önbellekten',
-      liveFetchLabel: 'Akakçe.com Canlı',
-      categoryRedirectNote: 'Kategori sayfasına yönlendirildi',
-      openOnAkakce: 'Akakçe’de Aç',
-      inspectOffersBtn: 'Satıcılar & Geçmiş',
-      offerCountSuffix: 'satıcı fiyatı',
-      followersSuffix: 'takip',
-      discountPrefix: 'İndirim',
-      noResults: 'Akakçe.com bu sorgu için listelenebilir ürün döndürmedi. Farklı bir anahtar kelime deneyin.',
-      initialPrompt: 'Akakçe.com üzerinden canlı fiyat çekmek için yukarıdan bir ürün arayın.',
-      detailsLoading: 'Akakçe ürün sayfasından satıcı teklifleri ve fiyat geçmişi yükleniyor...',
-      sellersTab: 'Mağaza Teklifleri',
-      historyTab: 'Fiyat Değişimi',
-      specsTab: 'Teknik Özellikler',
-      variantsTitle: 'Diğer Varyant / Renk Seçenekleri',
-      rankCol: 'Sıra',
-      marketplaceSellerCol: 'Pazaryeri / Satıcı',
-      listingTitleCol: 'Satıcı İlan Başlığı',
-      shippingStockCol: 'Kargo ve Teslimat',
-      priceCol: 'Fiyat',
-      cheapestBadge: 'En Ucuz',
-      noOffersParsed: 'Bu ürün için aktif satıcı listesi bulunamadı.',
-      noHistoryParsed: 'Bu ürün sayfasında fiyat değişim tablosu yer almıyor.',
-      dateCol: 'Tarih',
-      lowestHistoryCol: 'En Ucuz Fiyat',
-      changeCol: 'Değişim',
-      percentCol: 'Oran',
-      minRecordedLabel: 'Dönem En Düşük',
-      maxRecordedLabel: 'Dönem En Yüksek',
-      currentPriceLabel: 'Güncel En Ucuz',
-      ratingLabel: 'Puan',
-      reviewsSuffix: 'değerlendirme',
-      closeDetails: 'Kapat',
-      perPageLabel: 'Sonuç',
-      allResultsOption: 'Tümü',
-      crawlingAllNote: 'Tüm Akakçe sayfaları paralel çekiliyor...',
-      loadingMoreLabel: 'Kalan Akakçe sayfaları yükleniyor',
-      stopCrawlingLabel: 'Durdur',
-      filterResultsPlaceholder: 'Yüklenen sonuçlar içinde filtrele...',
-      akakcePagesSuffix: 'Akakçe sayfası',
-      prevPage: 'Önceki Sayfa',
-      nextPage: 'Sonraki Sayfa',
+      liveFetchLabel: 'Canlı Çekildi',
+      noResults: 'Seçilen filtrelerle eşleşen aktüel ürün bulunamadı.',
+      loadingNote: 'BİM, A101 ve ŞOK haftalık katalogları canlı çekiliyor...',
+      compareBtn: 'Piyasayla Kıyasla',
+      comparingBtn: 'Kıyaslanıyor...',
+      openSourceBtn: 'Kaynağa Git',
+      comparePanelTitle: 'Akakçe Online Piyasa Karşılaştırması',
+      closePanel: 'Kapat',
+      aktuelPriceLabel: 'Aktüel Fiyat',
+      akakceLowestLabel: 'Akakçe En Düşük',
+      verdictLabels: {
+        piyasadan_ucuz: 'Piyasadan Avantajlı',
+        piyasayla_benzer: 'Piyasayla Benzer',
+        piyasadan_pahali: 'Online Piyasa Daha Ucuz',
+        karsilastirilamadi: 'Referans Bulunamadı',
+      },
+      onlineMatchesTitle: 'Akakçe Üzerindeki Eşleşen İlanlar',
+      noOnlineMatches: 'Bu model için Akakçe üzerinde birebir online eşleşme bulunamadı.',
+      campaignsStripTitle: 'Aktif ve Yaklaşan Katalog Tarihleri',
+      viewInBrochureBtn: 'Broşürde Gör',
+    },
+    brochuresView: {
+      kicker: 'HAFTALIK BROŞÜR VE AFİŞ ARŞİVİ · aktuel_brosurler',
+      title: 'BİM, A101 ve ŞOK Broşür Galerisi',
+      subtitle:
+        'Katalogdaki ürünlere veya broşür sayfalarına tıklayarak orijinal sayfa üzerinde yakınlaştırılabilir ürün konumlarını inceleyin. Kutu tespiti yalnızca siz sayfayı açtığınızda çalışır.',
+      allMarkets: 'Tümü',
+      refreshBtn: 'Broşürleri Yenile',
+      loadingNote: 'Haftalık broşür sayfaları yükleniyor...',
+      emptyNote: 'Seçili market için aktif broşür görseli bulunamadı.',
+      pagesSuffix: 'sayfa',
+      productsSuffix: 'ayrıştırılan ürün',
+      openOriginal: 'Orijinal Sayfa',
+      closeModal: 'Kapat',
       pageLabel: 'Sayfa',
-      singleSellerNote: 'Tek Satıcı',
-      searchOnAkakce: 'Akakçe’de Ara',
+      productsInBrochure: 'Bu Broşürdeki Ürünler (Tıkla & Sayfada Gör)',
+      filterProductsPlaceholder: 'Broşür içinde ürün ara...',
+      showAllProducts: 'Tümünü göster',
+      collapseProducts: 'Daralt',
+      locateOnPage: 'Sayfada Göster',
+      zoomIn: 'Yakınlaştır',
+      zoomOut: 'Uzaklaştır',
+      resetZoom: 'Sıfırla',
+      showBoxes: 'Kutuları Göster',
+      hideBoxes: 'Kutuları Gizle',
+      scanPage: 'Sayfayı Tara',
+      scanningPage: 'Ürün kutuları taranıyor...',
+      prevPage: 'Önceki',
+      nextPage: 'Sonraki',
+      detectedOnPageTitle: 'Bu Sayfadaki Konumlandırılan Ürünler',
+      brochureCatalogTitle: 'Broşürdeki Diğer Ürünler',
+      noDetectionsYet: 'Henüz tarama yapılmadı. Kutuları görmek için sayfayı tarayın veya listeden bir ürün seçin.',
+      selectedProductLabel: 'Odaklanılan Ürün',
+      notFoundOnScannedPages: 'Seçilen ürün taranan sayfalarda net eşleşmedi; diğer sayfaları kontrol edebilirsiniz.',
+      panHint: 'Yakınlaştırıp sürükleyerek gezinin · Kapatmak için Esc',
+      cachedBadge: 'Önbellekten',
     },
     playground: {
       kicker: 'MODEL CONTEXT PROTOCOL · JSON-RPC 2.0',
@@ -298,13 +353,13 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     },
     setup: {
       kicker: '@modelcontextprotocol/sdk · CLAUDE DESKTOP & CURSOR',
-      title: 'Akakçe MCP Kurulumu ve Starter Kodu',
+      title: 'Aktüel MCP Kurulumu ve Starter Kodu',
       subtitle:
-        'Bu uygulamanın canlı POST /mcp HTTP uç noktasını doğrudan bağlayabilir veya yerel bilgisayarınızda stdio tabanlı bağımsız Akakçe MCP sunucusunu çalıştırabilirsiniz.',
+        'Bu sunucunun canlı POST /mcp HTTP ucunu doğrudan AI istemcinize bağlayabilir veya yerel bilgisayarınızda stdio tabanlı aktuel-mcp sunucusunu çalıştırabilirsiniz.',
       httpConfigTitle: '1. Canlı HTTP MCP Uç Noktası',
       httpConfigDesc: 'Uzak MCP destekleyen istemcilerde doğrudan bu sunucunun /mcp adresini kullanın:',
-      stdioTitle: '2. Bağımsız Yerel Stdio Akakçe MCP Projesi',
-      stdioDesc: 'Claude Desktop veya Cursor ile yerelde akakce.com’a bağlanan saf TypeScript MCP dosyaları:',
+      stdioTitle: '2. Bağımsız Yerel Stdio Aktüel MCP Projesi',
+      stdioDesc: 'Claude Desktop veya Cursor ile yerelde çalışan TypeScript MCP dosyaları:',
       copy: 'Kopyala',
       copied: 'Kopyalandı',
       download: 'İndir',
@@ -313,8 +368,10 @@ export const TRANSLATIONS: Record<Language, Translations> = {
   },
   en: {
     topBar: {
+      brand: 'Aktüel MCP',
       nav: {
-        search: 'Live Search',
+        catalog: 'Weekly Catalog',
+        brochures: 'Brochures',
         playground: 'MCP Playground',
         setup: 'Setup & Code',
       },
@@ -327,7 +384,7 @@ export const TRANSLATIONS: Record<Language, Translations> = {
       checking: 'Checking',
       healthEndpoint: 'REST Health',
       mcpEndpoint: 'MCP JSON-RPC',
-      targetLabel: 'Source',
+      targetLabel: 'Markets',
       toolsUnit: 'Tools',
       resourcesUnit: 'Resources',
       uptimeLabel: 'Uptime',
@@ -339,113 +396,152 @@ export const TRANSLATIONS: Record<Language, Translations> = {
       languageLabel: 'Language',
       sectionsLabel: 'Workspace',
       sections: {
-        search: '01. Live Akakçe Search',
-        playground: '02. MCP JSON-RPC Lab',
-        setup: '03. Setup & Starter Code',
+        catalog: '01. Weekly Aktüel Catalog',
+        brochures: '02. Brochure Gallery',
+        playground: '03. MCP JSON-RPC Lab',
+        setup: '04. Setup & Starter Code',
       },
-      toolsLabel: 'Registered Akakçe Tools',
+      toolsLabel: 'Registered Aktüel Tools',
       endpoint: 'MCP Endpoint',
-      targetSite: 'Live Target',
+      targetSite: 'Live Sources',
       currency: 'Currency',
-      currencyValue: 'TRY (Live Akakçe)',
+      currencyValue: 'TRY (BİM · A101 · ŞOK)',
     },
     tools: {
-      akakce_search: {
-        title: 'Live Akakçe Product Search',
+      aktuel_bu_hafta: {
+        title: 'Weekly Market Catalogs',
         description:
-          'Queries akakce.com/arama/ live and returns matching products, lowest TRY prices, offer counts, and direct Akakçe links.',
+          'Fetches this week’s active discount catalog, validity dates, and products for BİM, A101, and ŞOK.',
       },
-      akakce_get_product_offers: {
-        title: 'Live Seller Offers',
+      aktuel_urun_ara: {
+        title: 'Search Weekly Deals',
         description:
-          'Fetches a specific Akakçe product page to parse all live merchant offers, shipping fees, stock status, and specs.',
+          'Fuzzy and synonym-aware search (e.g. kettle → su ısıtıcı) across BİM, A101, and ŞOK weekly catalogs.',
       },
-      akakce_get_price_history: {
-        title: 'Akakçe Price History',
+      aktuel_kategori: {
+        title: 'Category Comparison',
         description:
-          'Extracts the official Price Change table (date, lowest price, TRY delta, % delta) directly from an Akakçe product page.',
+          'Compares weekly offers in electronics, kitchen, camping, home, or tools across all 3 chains.',
       },
-      akakce_autocomplete: {
-        title: 'Akakçe Autocomplete',
+      aktuel_takvim: {
+        title: 'Weekly Release Calendar',
         description:
-          'Queries api6.akakce.com/autocomplete for instant product, category, and brand suggestions.',
+          'Lists active and upcoming release dates across Tuesday–Saturday supermarket cycles.',
       },
-      akakce_compare_product_prices: {
-        title: 'Multi-Product Seller Comparison',
+      aktuel_liste_tara: {
+        title: 'Batch Shopping List',
         description:
-          'Searches Akakçe and fetches seller offer lists for the top N results in parallel.',
+          'Scans a list of items across all 3 chains in one call and estimates the lowest basket total.',
+      },
+      aktuel_brosurler: {
+        title: 'Brochure Poster URLs',
+        description:
+          'Returns high-resolution brochure page image URLs for BİM, A101, and ŞOK campaigns.',
+      },
+      aktuel_piyasa_karsilastir: {
+        title: 'Market vs. Akakçe Check',
+        description:
+          'Compares an aktüel deal price against live online Akakçe pricing to verify real savings.',
       },
     },
-    searchView: {
-      kicker: 'AKAKCE.COM LIVE MCP · POST /mcp (akakce_search)',
-      title: 'Akakçe Live Search & Price Comparison',
+    categories: {
+      hepsi: 'All Categories',
+      elektronik: 'Electronics',
+      mutfak: 'Kitchen',
+      kamp: 'Camping',
+      ev_yasam: 'Home & Living',
+      yapi_oto: 'Tools & Auto',
+      oyuncak: 'Toys',
+      giyim: 'Apparel',
+      gida: 'Grocery',
+      diger: 'Other',
+    },
+    timings: {
+      hepsi: 'All Dates',
+      aktif: 'Active Now',
+      yaklasan: 'Upcoming',
+      gecmis: 'Past',
+    },
+    catalogView: {
+      kicker: 'BİM · A101 · ŞOK LIVE MCP · POST /mcp',
+      title: 'Weekly Aktüel Catalog & Price Comparison',
       subtitle:
-        'Every search executes real JSON-RPC calls against akakce.com via POST /mcp, returning live search results, merchant offers, and price history.',
-      placeholder: 'Search Akakçe live (e.g. Samsung A35, Samsung A37, iPhone 16, Dyson V15)...',
-      searchButton: 'Search Akakçe',
-      searchingButton: 'Querying Akakçe...',
-      sortLabel: 'Sort',
-      sorts: {
-        popularity: 'Akakçe Popularity',
-        lowest_price: 'Lowest Price',
-        highest_price: 'Highest Price',
-      },
-      forceRefreshLabel: 'Bypass Cache',
-      quickQueries: ['Samsung A35', 'Samsung A37', 'iPhone 16', 'Dyson V15', 'Çamaşır Makinesi'],
-      autocompleteProducts: 'Akakçe Live Suggestions',
-      resultsTitle: 'Akakçe Search Results',
-      resultsCountSuffix: 'products',
+        'Browse live weekly discount catalogs from BİM, A101, and ŞOK, filter by category or release timing, and benchmark prices against Akakçe.',
+      placeholder: 'Search weekly deals (e.g. TV, matkap, termos, tava, buzdolabı)...',
+      searchButton: 'Search Catalog',
+      loadingButton: 'Scanning...',
+      forceRefreshLabel: 'Force Refresh',
+      quickQueries: ['TV', 'Matkap', 'Termos', 'Tava', 'Buzdolabı', 'Oyuncak'],
+      marketAll: 'All Markets',
+      timingAll: 'All Dates',
+      sortLowest: 'Lowest Price',
+      sortHighest: 'Highest Price',
+      sortRelevance: 'Relevant',
+      resultsTitle: 'Aktüel Product Listings',
+      resultsCountSuffix: 'items',
       cacheHitLabel: 'Cached',
-      liveFetchLabel: 'Live Akakce.com',
-      categoryRedirectNote: 'Redirected to category page',
-      openOnAkakce: 'Open on Akakçe',
-      inspectOffersBtn: 'Sellers & History',
-      offerCountSuffix: 'offers',
-      followersSuffix: 'followers',
-      discountPrefix: 'Drop',
-      noResults: 'Akakce.com returned no product listings for this query. Try another search term.',
-      initialPrompt: 'Search for any product above to fetch live prices from Akakce.com.',
-      detailsLoading: 'Loading live merchant offers and price history from Akakce.com...',
-      sellersTab: 'Merchant Offers',
-      historyTab: 'Price History',
-      specsTab: 'Specifications',
-      variantsTitle: 'Other Color / Variant Options',
-      rankCol: 'Rank',
-      marketplaceSellerCol: 'Marketplace / Seller',
-      listingTitleCol: 'Seller Listing Title',
-      shippingStockCol: 'Shipping & Delivery',
-      priceCol: 'Price',
-      cheapestBadge: 'Cheapest',
-      noOffersParsed: 'No active seller list found on this product page.',
-      noHistoryParsed: 'No price change history table found for this product.',
-      dateCol: 'Date',
-      lowestHistoryCol: 'Lowest Price',
-      changeCol: 'Delta',
-      percentCol: '% Change',
-      minRecordedLabel: 'Period Low',
-      maxRecordedLabel: 'Period High',
-      currentPriceLabel: 'Current Lowest',
-      ratingLabel: 'Rating',
-      reviewsSuffix: 'reviews',
-      closeDetails: 'Close',
-      perPageLabel: 'Results',
-      allResultsOption: 'All',
-      crawlingAllNote: 'Fetching all Akakçe result pages in parallel...',
-      loadingMoreLabel: 'Loading remaining Akakçe pages',
-      stopCrawlingLabel: 'Stop',
-      filterResultsPlaceholder: 'Filter within loaded results...',
-      akakcePagesSuffix: 'Akakçe pages',
-      prevPage: 'Previous Page',
-      nextPage: 'Next Page',
+      liveFetchLabel: 'Live Fetch',
+      noResults: 'No weekly aktüel items matched your selected filters.',
+      loadingNote: 'Fetching live weekly catalogs from BİM, A101, and ŞOK...',
+      compareBtn: 'Compare Online',
+      comparingBtn: 'Comparing...',
+      openSourceBtn: 'Source',
+      comparePanelTitle: 'Live Akakçe Online Benchmark',
+      closePanel: 'Close',
+      aktuelPriceLabel: 'Store Deal Price',
+      akakceLowestLabel: 'Akakçe Lowest',
+      verdictLabels: {
+        piyasadan_ucuz: 'Cheaper Than Online',
+        piyasayla_benzer: 'Similar To Online',
+        piyasadan_pahali: 'Cheaper Online',
+        karsilastirilamadi: 'No Benchmark Found',
+      },
+      onlineMatchesTitle: 'Matching Online Listings on Akakçe',
+      noOnlineMatches: 'No direct online match found on Akakçe for this item.',
+      campaignsStripTitle: 'Active & Upcoming Release Dates',
+      viewInBrochureBtn: 'View in Brochure',
+    },
+    brochuresView: {
+      kicker: 'WEEKLY BROCHURE ARCHIVE · aktuel_brosurler',
+      title: 'BİM, A101 & ŞOK Brochure Gallery',
+      subtitle:
+        'Click any product or catalog page to inspect the original flyer in a zoomable viewer with highlighted bounding boxes. Vision detection runs on demand only when opened.',
+      allMarkets: 'All',
+      refreshBtn: 'Refresh Brochures',
+      loadingNote: 'Loading weekly brochure posters...',
+      emptyNote: 'No active brochure posters found for the selected market.',
+      pagesSuffix: 'pages',
+      productsSuffix: 'parsed items',
+      openOriginal: 'Original Page',
+      closeModal: 'Close',
       pageLabel: 'Page',
-      singleSellerNote: 'Single Offer',
-      searchOnAkakce: 'Find on Akakçe',
+      productsInBrochure: 'Products in This Brochure (Click to Locate)',
+      filterProductsPlaceholder: 'Filter items in brochure...',
+      showAllProducts: 'Show all',
+      collapseProducts: 'Collapse',
+      locateOnPage: 'Locate on Page',
+      zoomIn: 'Zoom In',
+      zoomOut: 'Zoom Out',
+      resetZoom: 'Reset',
+      showBoxes: 'Show Boxes',
+      hideBoxes: 'Hide Boxes',
+      scanPage: 'Scan Page',
+      scanningPage: 'Detecting product bounding boxes...',
+      prevPage: 'Prev',
+      nextPage: 'Next',
+      detectedOnPageTitle: 'Detected Items on This Page',
+      brochureCatalogTitle: 'Other Brochure Items',
+      noDetectionsYet: 'Not scanned yet. Scan this page or click a product to highlight its bounding box.',
+      selectedProductLabel: 'Focused Product',
+      notFoundOnScannedPages: 'Selected product could not be matched on the scanned pages; try switching pages.',
+      panHint: 'Scroll to zoom · Drag to pan · Esc to close',
+      cachedBadge: 'Cached',
     },
     playground: {
       kicker: 'MODEL CONTEXT PROTOCOL · JSON-RPC 2.0',
       title: 'MCP JSON-RPC 2.0 Test Console',
       subtitle:
-        'Send raw JSON-RPC 2.0 requests to POST /mcp just as Claude Desktop or Cursor does, and inspect the live Akakçe payloads.',
+        'Send raw JSON-RPC 2.0 requests to POST /mcp just as Claude Desktop or Cursor does, and inspect the live aktuel-mcp payloads.',
       rpcMethodLabel: 'JSON-RPC Method',
       targetToolLabel: 'MCP Tool',
       argumentsLabel: 'Arguments',
@@ -464,13 +560,13 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     },
     setup: {
       kicker: '@modelcontextprotocol/sdk · CLAUDE DESKTOP & CURSOR',
-      title: 'Akakçe MCP Setup & Starter Code',
+      title: 'Aktüel MCP Setup & Starter Code',
       subtitle:
-        'Connect directly to this server’s live POST /mcp HTTP endpoint or run the standalone stdio TypeScript MCP server locally.',
+        'Connect directly to this server’s live POST /mcp HTTP endpoint or run the standalone stdio TypeScript aktuel-mcp server locally.',
       httpConfigTitle: '1. Live HTTP MCP Endpoint',
       httpConfigDesc: 'Point remote-MCP-capable clients directly to this server’s /mcp endpoint:',
-      stdioTitle: '2. Standalone Local Stdio Akakçe MCP Project',
-      stdioDesc: 'Pure TypeScript MCP server files connecting directly to akakce.com for Claude Desktop or Cursor:',
+      stdioTitle: '2. Standalone Local Stdio Aktüel MCP Project',
+      stdioDesc: 'Pure TypeScript MCP server files connecting live to BİM, A101 & ŞOK catalogs:',
       copy: 'Copy',
       copied: 'Copied',
       download: 'Download',

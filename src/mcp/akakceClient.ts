@@ -1,3 +1,4 @@
+import { expandSearchVariants, normalizeTr } from '../utils/aktuelSearch.ts';
 import type {
   AkakceAutocompleteGroup,
   AkakcePriceHistoryRow,
@@ -29,9 +30,12 @@ const PRODUCT_URL_BY_ID = new Map<string, { title: string; akakceUrl: string; up
 function decodeHtml(raw: string): string {
   return raw
     .replace(/<!--[\s\S]*?-->/g, '')
+    .replace(/&#(\d+);/g, (_m, dec) => String.fromCharCode(Number(dec)))
+    .replace(/&#x([0-9a-f]+);/gi, (_m, hex) => String.fromCharCode(parseInt(hex, 16)))
     .replace(/&amp;/g, '&')
     .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
+    .replace(/&#39;|&apos;|&rsquo;|&lsquo;/gi, "'")
+    .replace(/&ldquo;|&rdquo;/gi, '"')
     .replace(/&nbsp;/g, ' ')
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
@@ -370,6 +374,114 @@ async function fetchSingleSearchPage(options: {
   return data;
 }
 
+const AKAKCE_CANONICAL_PHRASES: Array<[RegExp, string]> = [
+  [/(?:^|(?<=\s))kablosuz\s+fare(?:si|ler|leri)?(?=\s|$)/gi, 'kablosuz mouse'],
+  [/(?:^|(?<=\s))oyuncu\s+fare(?:si|ler|leri)?(?=\s|$)/gi, 'oyuncu mouse'],
+  [/(?:^|(?<=\s))bluetooth\s+fare(?:si)?(?=\s|$)/gi, 'bluetooth mouse'],
+  [/(?:^|(?<=\s))diz[üu]st[üu](?:\s+bilgisayar)?(?=\s|$)/gi, 'laptop'],
+  [/(?:^|(?<=\s))[çc]ekyat(?:lar|lar[ıi])?(?=\s|$)/gi, 'kanepe'],
+  [/(?:^|(?<=\s))ket[ıi]l(?=\s|$)/gi, 'kettle'],
+  [/(?:^|(?<=\s))su\s*kaynat[ıi]c[ıi](?:s[ıi])?(?=\s|$)/gi, 'kettle'],
+  [/(?:^|(?<=\s))su\s*[ıi]s[ıi]t[ıi]c[ıi]s[ıi]?(?=\s|$)/gi, 'su ısıtıcı'],
+  [/(?:^|(?<=\s))su[ıi]s[ıi]t[ıi]c[ıi](?:s[ıi])?(?=\s|$)/gi, 'su ısıtıcı'],
+  [/(?:^|(?<=\s))(?:ey[ıi]rfray[ıi]r|airfrayer)(?=\s|$)/gi, 'airfryer'],
+  [/(?:^|(?<=\s))s[ıi]cak\s+hava\s+frit[öo]z[üu](?=\s|$)/gi, 'yağsız fritöz'],
+  [/(?:^|(?<=\s))(?:ara[çc]|araba)\s+s[üu]p[üu]rge(?:si)?(?=\s|$)/gi, 'oto süpürge'],
+  [/makinas[ıi](?=\s|$)/gi, 'makinesi'],
+  [/(?:^|(?<=\s))[şs]arzl[ıi](?=\s|$)/gi, 'şarjlı'],
+  [/(?:^|(?<=\s))[şs]arz(?=\s|$)/gi, 'şarj'],
+  [/(?:^|(?<=\s))(?:blutut|bluetoot)(?=\s|$)/gi, 'bluetooth'],
+  [/(?:^|(?<=\s))nofrost(?=\s|$)/gi, 'no frost'],
+  [/(?:^|(?<=\s))[çc]aymakinesi(?=\s|$)/gi, 'çay makinesi'],
+  [/(?:^|(?<=\s))kahvemakinesi(?=\s|$)/gi, 'kahve makinesi'],
+  [/(?:^|(?<=\s))dikeys[üu]p[üu]rge(?=\s|$)/gi, 'dikey süpürge'],
+  [/(?:^|(?<=\s))robots[üu]p[üu]rge(?=\s|$)/gi, 'robot süpürge'],
+];
+
+const AKAKCE_FILLER_WORDS = new Set([
+  'en',
+  'ucuz',
+  'fiyat',
+  'fiyati',
+  'fiyatlari',
+  'ne',
+  'kadar',
+  'kac',
+  'tl',
+  'var',
+  'mi',
+  'mu',
+  'modelleri',
+  'modeli',
+  'onerisi',
+  'tavsiyesi',
+  'aktuel',
+]);
+
+function prepareAkakceQuery(rawQuery: string): {
+  effectiveQuery: string;
+  normalizedQuery?: string;
+  synonymFallbacks: string[];
+  displaySynonyms: string[];
+} {
+  let cleaned = rawQuery.trim().replace(/\s+/g, ' ');
+  for (const [re, rep] of AKAKCE_CANONICAL_PHRASES) {
+    cleaned = cleaned.replace(re, rep);
+  }
+
+  // Strip conversational Turkish filler tokens only if meaningful tokens remain
+  const words = cleaned.split(/\s+/).filter(Boolean);
+  const meaningful = words.filter((w) => !AKAKCE_FILLER_WORDS.has(normalizeTr(w)));
+  if (meaningful.length > 0 && meaningful.length < words.length) {
+    cleaned = meaningful.join(' ');
+  }
+  cleaned = cleaned.replace(/\s+/g, ' ').trim() || rawQuery.trim();
+
+  const expanded = expandSearchVariants(cleaned);
+  const effectiveNorm = normalizeTr(cleaned);
+  const rawNorm = normalizeTr(rawQuery);
+
+  return {
+    effectiveQuery: cleaned,
+    ...(effectiveNorm !== rawNorm ? { normalizedQuery: cleaned } : {}),
+    synonymFallbacks: expanded.synonymQueries,
+    displaySynonyms: expanded.displaySynonyms,
+  };
+}
+
+async function resolveCategoryFallbackUrl(query: string): Promise<string | null> {
+  try {
+    const ac = await autocompleteAkakce(query);
+    for (const group of ac.groups) {
+      for (const item of group.items) {
+        if (
+          (item.type === 'c' || item.type === 'bc') &&
+          item.akakceUrl &&
+          !item.akakceUrl.includes('/arama/') &&
+          /\.html$/i.test(item.akakceUrl)
+        ) {
+          return item.akakceUrl;
+        }
+      }
+    }
+    for (const group of ac.groups) {
+      for (const item of group.items) {
+        if (
+          item.akakceUrl &&
+          !item.akakceUrl.includes('/arama/') &&
+          /\.html$/i.test(item.akakceUrl) &&
+          !/,\d+\.html$/i.test(item.akakceUrl)
+        ) {
+          return item.akakceUrl;
+        }
+      }
+    }
+  } catch {
+    // Ignore autocomplete fallback errors
+  }
+  return null;
+}
+
 const MAX_AKAKCE_CRAWL_PAGES = 60;
 const CHUNK_PAGES_LIMIT = 16;
 const PARALLEL_BATCH_SIZE = 3;
@@ -383,17 +495,21 @@ export async function searchAkakce(options: {
   startAkakcePage?: number;
   forceRefresh?: boolean;
 }): Promise<AkakceSearchResponse> {
-  const query = options.query.trim();
-  if (!query) {
+  const rawQuery = options.query.trim();
+  if (!rawQuery) {
     throw new Error('Arama sorgusu (query) boş olamaz.');
   }
+
+  const prep = prepareAkakceQuery(rawQuery);
+  let query = prep.effectiveQuery;
+  const appliedSynonyms = new Set<string>(prep.displaySynonyms);
 
   const sortBy: AkakceSortBy = options.sortBy ?? 'popularity';
   const fetchAll = Boolean(options.fetchAll);
   const startAkPage = fetchAll ? Math.max(1, Math.floor(options.startAkakcePage ?? 1)) : 1;
   const uiPage = fetchAll ? 1 : Math.max(1, Math.floor(options.page ?? 1));
   const limit = fetchAll ? 2500 : Math.min(2500, Math.max(1, Math.floor(options.limit ?? 50)));
-  const cacheKey = `${query.toLocaleLowerCase('tr-TR')}|${sortBy}|all:${fetchAll ? startAkPage : 0}|p${uiPage}|l${limit}`;
+  const cacheKey = `${rawQuery.toLocaleLowerCase('tr-TR')}|${sortBy}|all:${fetchAll ? startAkPage : 0}|p${uiPage}|l${limit}`;
 
   const cached = SEARCH_CACHE.get(cacheKey);
   if (!options.forceRefresh && cached && cached.expiresAt > Date.now()) {
@@ -403,12 +519,84 @@ export async function searchAkakce(options: {
     };
   }
 
-  const page1Meta = await fetchSingleSearchPage({
-    query,
-    sortBy,
-    page: 1,
-    forceRefresh: options.forceRefresh && startAkPage === 1,
-  });
+  let page1Meta: SinglePageResult;
+  try {
+    page1Meta = await fetchSingleSearchPage({
+      query,
+      sortBy,
+      page: 1,
+      forceRefresh: options.forceRefresh && startAkPage === 1,
+    });
+  } catch (primaryErr) {
+    // Recover from 429/Cloudflare using autocomplete category URL first, then synonym variants
+    const catUrl = await resolveCategoryFallbackUrl(query);
+    if (catUrl) {
+      const targetCatUrl = sortBy === 'popularity' ? catUrl : buildCategoryPageUrl(catUrl, 1, sortBy);
+      page1Meta = await fetchSingleSearchPage({
+        query,
+        sortBy,
+        page: 1,
+        explicitUrl: targetCatUrl,
+        forceRefresh: options.forceRefresh && startAkPage === 1,
+      });
+    } else {
+      let recovered: SinglePageResult | null = null;
+      for (const syn of prep.synonymFallbacks.slice(0, 2)) {
+        await sleep(350);
+        try {
+          const altRes = await fetchSingleSearchPage({ query: syn, sortBy, page: 1 });
+          if (altRes.products.length > 0) {
+            recovered = altRes;
+            query = syn;
+            appliedSynonyms.add(syn);
+            break;
+          }
+        } catch {
+          // Continue fallback chain
+        }
+      }
+      if (!recovered) throw primaryErr;
+      page1Meta = recovered;
+    }
+  }
+
+  // If primary search returned 0 products, try autocomplete category URL or synonym fallback
+  if (page1Meta.products.length === 0) {
+    const catUrl = await resolveCategoryFallbackUrl(query);
+    if (catUrl) {
+      const targetCatUrl = sortBy === 'popularity' ? catUrl : buildCategoryPageUrl(catUrl, 1, sortBy);
+      try {
+        const catRes = await fetchSingleSearchPage({
+          query,
+          sortBy,
+          page: 1,
+          explicitUrl: targetCatUrl,
+        });
+        if (catRes.products.length > 0) {
+          page1Meta = catRes;
+        }
+      } catch {
+        // Ignore and try synonym fallback
+      }
+    }
+  }
+
+  if (page1Meta.products.length === 0 && prep.synonymFallbacks.length > 0) {
+    for (const syn of prep.synonymFallbacks.slice(0, 3)) {
+      await sleep(300);
+      try {
+        const altRes = await fetchSingleSearchPage({ query: syn, sortBy, page: 1 });
+        if (altRes.products.length > 0) {
+          page1Meta = altRes;
+          query = syn;
+          appliedSynonyms.add(syn);
+          break;
+        }
+      } catch {
+        // Keep trying next synonym
+      }
+    }
+  }
 
   const entryPage =
     startAkPage === 1
@@ -543,7 +731,9 @@ export async function searchAkakce(options: {
   const totalUiPages = fetchAll ? 1 : Math.max(uiPage, Math.ceil(approxTotalItems / limit));
 
   const fullData: AkakceSearchResponse = {
-    query,
+    query: rawQuery,
+    ...(prep.normalizedQuery || query !== rawQuery ? { normalizedQuery: query } : {}),
+    ...(appliedSynonyms.size > 0 ? { appliedSynonyms: [...appliedSynonyms] } : {}),
     sortBy,
     page: uiPage,
     limit,
@@ -574,16 +764,8 @@ export async function searchAkakce(options: {
   return fullData;
 }
 
-export async function autocompleteAkakce(query: string): Promise<{
-  query: string;
-  groups: AkakceAutocompleteGroup[];
-}> {
-  const trimmed = query.trim();
-  if (!trimmed) {
-    return { query: '', groups: [] };
-  }
-
-  const url = `${AKAKCE_AC_URL}?q=${encodeURIComponent(trimmed)}`;
+async function fetchAutocompleteRaw(q: string): Promise<AkakceAutocompleteGroup[]> {
+  const url = `${AKAKCE_AC_URL}?q=${encodeURIComponent(q)}`;
   const res = await fetch(url, {
     headers: {
       ...BROWSER_HEADERS,
@@ -609,7 +791,7 @@ export async function autocompleteAkakce(query: string): Promise<{
     };
   };
 
-  const groups: AkakceAutocompleteGroup[] = (json.result?.groups ?? []).map((g) => ({
+  return (json.result?.groups ?? []).map((g) => ({
     title: g.title ?? 'Sonuçlar',
     items: (g.items ?? [])
       .filter((it) => it.text && it.action?.url)
@@ -631,6 +813,31 @@ export async function autocompleteAkakce(query: string): Promise<{
         };
       }),
   }));
+}
+
+export async function autocompleteAkakce(query: string): Promise<{
+  query: string;
+  groups: AkakceAutocompleteGroup[];
+}> {
+  const trimmed = query.trim();
+  if (!trimmed) {
+    return { query: '', groups: [] };
+  }
+
+  let groups = await fetchAutocompleteRaw(trimmed);
+  const totalItems = groups.reduce((acc, g) => acc + g.items.length, 0);
+  if (totalItems === 0) {
+    const prep = prepareAkakceQuery(trimmed);
+    const candidates = [prep.effectiveQuery, ...prep.synonymFallbacks.slice(0, 2)].filter(
+      (c, i, arr) => c && c !== trimmed && arr.indexOf(c) === i,
+    );
+    for (const alt of candidates) {
+      groups = await fetchAutocompleteRaw(alt);
+      if (groups.some((g) => g.items.length > 0)) {
+        break;
+      }
+    }
+  }
 
   return { query: trimmed, groups };
 }

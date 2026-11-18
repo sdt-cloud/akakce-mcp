@@ -13,29 +13,41 @@ interface McpPlaygroundViewProps {
 type RpcMethod = 'tools/call' | 'tools/list' | 'resources/list' | 'resources/read';
 
 const DEFAULT_ARGS: Record<string, Record<string, unknown>> = {
-  akakce_search: {
-    query: 'Samsung A35',
-    sortBy: 'popularity',
-    page: 1,
-    limit: 50,
-    fetchAll: false,
+  aktuel_bu_hafta: {
+    market: 'hepsi',
+    onlyActiveOrUpcoming: true,
+    limitPerMarket: 25,
     forceRefresh: false,
   },
-  akakce_get_product_offers: {
-    productUrlOrId: 'https://www.akakce.com/cep-telefonu/en-ucuz-samsung-galaxy-a35-256-gb-siyah-fiyati,625155494.html',
+  aktuel_urun_ara: {
+    query: 'TV',
+    market: 'hepsi',
+    sortBy: 'lowest_price',
+    timing: 'hepsi',
+    limit: 25,
+  },
+  aktuel_kategori: {
+    kategori: 'elektronik',
+    market: 'hepsi',
+    sortBy: 'lowest_price',
+    limit: 30,
+  },
+  aktuel_takvim: {
+    market: 'hepsi',
+    gun: 'hepsi',
+    durum: 'hepsi',
+  },
+  aktuel_liste_tara: {
+    items: ['televizyon', 'matkap', 'tava'],
+    market: 'hepsi',
+  },
+  aktuel_brosurler: {
+    market: 'hepsi',
     forceRefresh: false,
   },
-  akakce_get_price_history: {
-    productUrlOrId: 'https://www.akakce.com/cep-telefonu/en-ucuz-samsung-galaxy-a35-256-gb-siyah-fiyati,625155494.html',
-    forceRefresh: false,
-  },
-  akakce_autocomplete: {
-    query: 'samsung a3',
-  },
-  akakce_compare_product_prices: {
-    query: 'Samsung A35 256 GB',
-    topProducts: 3,
-    sortBy: 'popularity',
+  aktuel_piyasa_karsilastir: {
+    query: 'Onvo QLED TV',
+    market: 'a101',
   },
 };
 
@@ -50,10 +62,10 @@ export function McpPlaygroundView({
 
   const [rpcMethod, setRpcMethod] = useState<RpcMethod>('tools/call');
   const [argsByTool, setArgsByTool] = useState<Record<string, Record<string, unknown>>>(DEFAULT_ARGS);
-  const [resourceUri, setResourceUri] = useState('mcp://akakce/server/info');
+  const [resourceUri, setResourceUri] = useState('mcp://aktuel/server/info');
   const [rawJsonMode, setRawJsonMode] = useState(false);
   const [rawJsonDraft, setRawJsonDraft] = useState(
-    JSON.stringify(DEFAULT_ARGS.akakce_search, null, 2),
+    JSON.stringify(DEFAULT_ARGS.aktuel_bu_hafta, null, 2),
   );
 
   const [isLoading, setIsLoading] = useState(false);
@@ -183,11 +195,11 @@ export function McpPlaygroundView({
           {rpcMethod === 'tools/call' && activeTool && (
             <>
               <div className="space-y-2">
-                <label htmlFor="akakce-tool-select" className="block text-xs font-semibold text-slate-700">
+                <label htmlFor="aktuel-tool-select" className="block text-xs font-semibold text-slate-700">
                   {t.targetToolLabel}
                 </label>
                 <select
-                  id="akakce-tool-select"
+                  id="aktuel-tool-select"
                   value={selectedToolName}
                   onChange={(e) => onSelectToolName(e.target.value)}
                   className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 font-mono text-xs text-slate-900 focus:border-blue-600 focus:outline-none"
@@ -246,6 +258,33 @@ export function McpPlaygroundView({
                               </option>
                             ))}
                           </select>
+                        </div>
+                      );
+                    }
+
+                    if (schema.type === 'array') {
+                      const arrVal = Array.isArray(value) ? value.join(', ') : String(value ?? '');
+                      return (
+                        <div key={propName} className="space-y-1">
+                          <label className="block text-xs font-medium text-slate-700">
+                            <span className="font-mono">{propName}</span>
+                            {isRequired ? ' *' : ''}
+                          </label>
+                          <input
+                            type="text"
+                            value={arrVal}
+                            placeholder="televizyon, matkap, tava"
+                            onChange={(e) =>
+                              updateArg(
+                                propName,
+                                e.target.value
+                                  .split(',')
+                                  .map((s) => s.trim())
+                                  .filter(Boolean),
+                              )
+                            }
+                            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs text-slate-900"
+                          />
                         </div>
                       );
                     }
@@ -319,8 +358,9 @@ export function McpPlaygroundView({
                 onChange={(e) => setResourceUri(e.target.value)}
                 className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 font-mono text-xs text-slate-900"
               >
-                <option value="mcp://akakce/server/info">mcp://akakce/server/info</option>
-                <option value="mcp://akakce/cache/recent">mcp://akakce/cache/recent</option>
+                <option value="mcp://aktuel/server/info">mcp://aktuel/server/info</option>
+                <option value="mcp://aktuel/takvim/bu-hafta">mcp://aktuel/takvim/bu-hafta</option>
+                <option value="mcp://aktuel/marketler/durum">mcp://aktuel/marketler/durum</option>
               </select>
             </div>
           )}

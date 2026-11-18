@@ -17,6 +17,8 @@ export interface AkakceSearchProduct {
 
 export interface AkakceSearchResponse {
   query: string;
+  normalizedQuery?: string;
+  appliedSynonyms?: string[];
   sortBy: AkakceSortBy;
   page: number;
   limit: number;
@@ -110,10 +112,13 @@ export interface AkakceAutocompleteGroup {
 }
 
 export interface McpToolPropertySchema {
-  type: 'string' | 'number' | 'boolean';
+  type: 'string' | 'number' | 'boolean' | 'array';
   description: string;
   enum?: string[];
-  default?: string | number | boolean;
+  default?: string | number | boolean | string[];
+  items?: {
+    type: 'string';
+  };
 }
 
 export interface McpToolDefinition {
@@ -150,4 +155,160 @@ export interface JsonRpcResponse {
     message: string;
     data?: unknown;
   };
+}
+
+export type MarketId = 'bim' | 'a101' | 'sok';
+export type MarketFilter = MarketId | 'hepsi';
+
+export type AktuelCategory =
+  | 'elektronik'
+  | 'mutfak'
+  | 'kamp'
+  | 'ev_yasam'
+  | 'yapi_oto'
+  | 'oyuncak'
+  | 'giyim'
+  | 'gida'
+  | 'diger';
+
+export type AktuelTimingStatus = 'aktif' | 'yaklasan' | 'gecmis';
+export type AktuelSortBy = 'relevance' | 'lowest_price' | 'highest_price';
+
+export interface AktuelProduct {
+  id: string;
+  market: MarketId;
+  marketLabel: 'BİM' | 'A101' | 'ŞOK';
+  brand: string;
+  title: string;
+  priceTry: number;
+  oldPriceTry: number | null;
+  discountPct: number | null;
+  priceFormatted: string;
+  category: AktuelCategory;
+  campaignTitle: string;
+  validFrom: string;
+  dayLabel: string;
+  timingStatus: AktuelTimingStatus;
+  salesChannel: 'magaza' | 'haftanin_firsati' | 'online_ekstra';
+  installmentInfo: string | null;
+  imageUrl: string;
+  sourceUrl: string;
+}
+
+export interface AktuelCampaign {
+  key: string;
+  market: MarketId;
+  marketLabel: 'BİM' | 'A101' | 'ŞOK';
+  title: string;
+  validFrom: string;
+  dayLabel: string;
+  timingStatus: AktuelTimingStatus;
+  productCount: number;
+  brochureCount: number;
+  sourceUrl: string;
+}
+
+export interface AktuelBrochure {
+  id: string;
+  market: MarketId;
+  marketLabel: 'BİM' | 'A101' | 'ŞOK';
+  title: string;
+  validFrom: string;
+  dayLabel: string;
+  timingStatus: AktuelTimingStatus;
+  pageImages: string[];
+  sourceUrl: string;
+  productCount: number;
+}
+
+export interface MarketCatalogSnapshot {
+  market: MarketId;
+  marketLabel: 'BİM' | 'A101' | 'ŞOK';
+  fetchedAt: string;
+  fromCache: boolean;
+  sourceUsed: string;
+  campaigns: AktuelCampaign[];
+  brochures: AktuelBrochure[];
+  products: AktuelProduct[];
+  warnings: string[];
+}
+
+export interface AktuelWeeklySummaryResponse {
+  market: MarketFilter;
+  fetchedAt: string;
+  fromCache: boolean;
+  totalProducts: number;
+  totalBrochures: number;
+  marketSummaries: Array<{
+    market: MarketId;
+    marketLabel: 'BİM' | 'A101' | 'ŞOK';
+    sourceUsed: string;
+    fromCache: boolean;
+    productCount: number;
+    brochureCount: number;
+    campaigns: AktuelCampaign[];
+    warnings: string[];
+  }>;
+  products: AktuelProduct[];
+  brochures: AktuelBrochure[];
+}
+
+export interface AktuelSearchResponse {
+  query: string;
+  appliedSynonyms?: string[];
+  market: MarketFilter;
+  category: AktuelCategory | 'hepsi';
+  timing: AktuelTimingStatus | 'hepsi';
+  sortBy: AktuelSortBy;
+  totalMatched: number;
+  fetchedAt: string;
+  fromCache: boolean;
+  products: AktuelProduct[];
+}
+
+export interface AktuelBasketMatch {
+  requestedItem: string;
+  found: boolean;
+  matchCount: number;
+  cheapestMatch: AktuelProduct | null;
+  alternatives: AktuelProduct[];
+}
+
+export interface AktuelMarketCheckResult {
+  query: string;
+  market: MarketFilter;
+  aktuelMatches: AktuelProduct[];
+  akakceReference: {
+    searchQuery: string;
+    searchUrl: string;
+    lowestOnlinePriceTry: number | null;
+    lowestOnlineFormatted: string | null;
+    topOnlineMatches: AkakceSearchProduct[];
+  };
+  dealAssessment: {
+    cheapestAktuelProduct: AktuelProduct | null;
+    priceDiffTry: number | null;
+    savingsPct: number | null;
+    verdict: 'piyasadan_ucuz' | 'piyasayla_benzer' | 'piyasadan_pahali' | 'karsilastirilamadi';
+    summary: string;
+  };
+}
+
+export interface BrochureDetectedItem {
+  id: string;
+  matchedProductId: string | null;
+  label: string;
+  priceText: string | null;
+  /** Normalized [ymin, xmin, ymax, xmax] in 0..1000 image coordinate space */
+  box2d: [number, number, number, number];
+  confidence: number;
+}
+
+export interface BrochureLocateResponse {
+  pageImageUrl: string;
+  matchedPageIndex: number;
+  matchedItemId: string | null;
+  items: BrochureDetectedItem[];
+  fromCache: boolean;
+  latencyMs: number;
 }

@@ -99,7 +99,7 @@ export function ApiHealthBar({ language }: ApiHealthBarProps) {
           </span>
 
           <span className="font-mono text-slate-700">
-            {t.targetLabel}: akakce.com
+            {t.targetLabel}: BİM · A101 · ŞOK
           </span>
 
           <span aria-hidden="true" className="text-slate-300">
@@ -123,7 +123,7 @@ export function ApiHealthBar({ language }: ApiHealthBarProps) {
           </span>
 
           <span className="hidden sm:inline font-mono tabular-nums">
-            {health?.toolsRegistered ?? 5} {t.toolsUnit} · {health?.resourcesRegistered ?? 2} {t.resourcesUnit}
+            {health?.toolsRegistered ?? 7} {t.toolsUnit} · {health?.resourcesRegistered ?? 3} {t.resourcesUnit}
           </span>
         </div>
 

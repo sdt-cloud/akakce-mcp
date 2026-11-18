@@ -2,7 +2,7 @@ import 'dotenv/config';
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { autocompleteAkakce, getAkakceCacheSummary } from './src/mcp/akakceClient.ts';
+import { getAktuelCacheSummary } from './src/mcp/aktuelClient.ts';
 import {
   executeMcpTool,
   listMcpResources,
@@ -10,6 +10,11 @@ import {
   readMcpResource,
 } from './src/mcp/tools.ts';
 import type { JsonRpcRequest, JsonRpcResponse } from './src/mcp/types.ts';
+import {
+  BrochureVisionError,
+  locateProductsInBrochure,
+  type BrochureCandidateProduct,
+} from './src/server/brochureVision.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -22,42 +27,66 @@ async function startServer() {
   app.use(express.json({ limit: '1mb' }));
 
   app.get('/api/health', (_req, res) => {
-    const cache = getAkakceCacheSummary();
+    const cache = getAktuelCacheSummary();
     res.json({
       status: 'ok',
-      service: 'Akakce-MCP',
-      targetSite: 'https://www.akakce.com',
+      service: 'Aktuel-MCP',
+      targetSite: 'bim.com.tr · a101 · sokmarket.com.tr',
       protocolVersion: '2025-03-26',
       toolsRegistered: listMcpTools().length,
       resourcesRegistered: listMcpResources().length,
-      cachedSearches: cache.cachedSearches,
-      cachedProductDetails: cache.cachedProductDetails,
+      marketsCache: cache.markets,
       uptimeSeconds: Math.floor((Date.now() - SERVER_STARTED_AT) / 1000),
       checkedAt: new Date().toISOString(),
     });
   });
 
-  app.get('/api/akakce/autocomplete', async (req, res) => {
-    const q = typeof req.query.q === 'string' ? req.query.q.trim() : '';
-    if (!q) {
-      res.json({ query: '', groups: [] });
+  app.post('/api/brochures/locate-products', async (req, res) => {
+    const body = (req.body ?? {}) as {
+      imageUrl?: string;
+      pageImages?: string[];
+      targetProductId?: string;
+      targetProductTitle?: string;
+      candidates?: BrochureCandidateProduct[];
+    };
+
+    const imageUrl = typeof body.imageUrl === 'string' ? body.imageUrl.trim() : '';
+    if (!imageUrl || !/^https?:\/\//i.test(imageUrl)) {
+      res.status(400).json({ error: 'Geçerli bir broşür görsel URL adresi gerekli.' });
       return;
     }
+
+    const pageImages = Array.isArray(body.pageImages)
+      ? body.pageImages.filter((u): u is string => typeof u === 'string' && /^https?:\/\//i.test(u))
+      : undefined;
+
     try {
-      const data = await autocompleteAkakce(q);
-      res.json(data);
+      const result = await locateProductsInBrochure({
+        imageUrl,
+        pageImages,
+        targetProductId: typeof body.targetProductId === 'string' ? body.targetProductId : undefined,
+        targetProductTitle:
+          typeof body.targetProductTitle === 'string' ? body.targetProductTitle : undefined,
+        candidates: Array.isArray(body.candidates) ? body.candidates : undefined,
+      });
+      res.json(result);
     } catch (err) {
-      res.status(502).json({
-        error: err instanceof Error ? err.message : 'Akakçe autocomplete erişilemedi.',
+      if (err instanceof BrochureVisionError) {
+        res.status(err.statusCode).json({ error: err.message, code: err.code });
+        return;
+      }
+      res.status(500).json({
+        error: err instanceof Error ? err.message : 'Broşür görseli analiz edilemedi.',
+        code: 'GEMINI_API_ERROR',
       });
     }
   });
 
   app.get('/mcp', (_req, res) => {
     res.json({
-      name: 'akakce-mcp',
+      name: 'aktuel-mcp',
       version: '1.0.0',
-      targetSite: 'https://www.akakce.com',
+      targetSite: 'bim.com.tr · a101 · sokmarket.com.tr',
       protocol: 'Model Context Protocol (JSON-RPC 2.0 over HTTP)',
       endpoint: '/mcp',
       capabilities: {
@@ -99,7 +128,7 @@ async function startServer() {
               resources: { subscribe: false, listChanged: false },
             },
             serverInfo: {
-              name: 'akakce-mcp',
+              name: 'aktuel-mcp',
               version: '1.0.0',
             },
           },
@@ -169,10 +198,11 @@ async function startServer() {
           });
           return;
         }
+        const resourceResult = await readMcpResource(uri);
         res.json({
           jsonrpc: '2.0',
           id,
-          result: readMcpResource(uri),
+          result: resourceResult,
         });
         return;
       }
@@ -213,11 +243,11 @@ async function startServer() {
   }
 
   app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Akakce-MCP server listening on http://localhost:${PORT}`);
+    console.log(`Aktuel-MCP server listening on http://localhost:${PORT}`);
   });
 }
 
 startServer().catch((err) => {
-  console.error('Failed to start Akakce-MCP server:', err);
+  console.error('Failed to start Aktuel-MCP server:', err);
   process.exit(1);
 });

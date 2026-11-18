@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Check, Copy, Download } from 'lucide-react';
-import { AKAKCE_STARTER_FILES } from '../data/akakceStarter';
+import { AKTUEL_STARTER_FILES } from '../data/aktuelStarter';
 import { TRANSLATIONS, type Language } from '../i18n/translations';
 
 interface SetupCodeViewProps {
@@ -9,14 +9,14 @@ interface SetupCodeViewProps {
 
 export function SetupCodeView({ language }: SetupCodeViewProps) {
   const t = TRANSLATIONS[language].setup;
-  const [selectedPath, setSelectedPath] = useState(AKAKCE_STARTER_FILES[0].path);
+  const [selectedPath, setSelectedPath] = useState(AKTUEL_STARTER_FILES[0].path);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const origin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000';
   const httpConfigSnippet = JSON.stringify(
     {
       mcpServers: {
-        'akakce-mcp': {
+        'aktuel-mcp': {
           url: `${origin}/mcp`,
         },
       },
@@ -26,7 +26,7 @@ export function SetupCodeView({ language }: SetupCodeViewProps) {
   );
 
   const activeFile =
-    AKAKCE_STARTER_FILES.find((f) => f.path === selectedPath) ?? AKAKCE_STARTER_FILES[0];
+    AKTUEL_STARTER_FILES.find((f) => f.path === selectedPath) ?? AKTUEL_STARTER_FILES[0];
 
   const handleCopy = async (id: string, text: string) => {
     await navigator.clipboard.writeText(text);
@@ -91,7 +91,7 @@ export function SetupCodeView({ language }: SetupCodeViewProps) {
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
           <div className="lg:col-span-4 space-y-2">
             <div className="space-y-1 rounded-xl border border-slate-200 bg-white p-2">
-              {AKAKCE_STARTER_FILES.map((file) => {
+              {AKTUEL_STARTER_FILES.map((file) => {
                 const isSelected = file.path === selectedPath;
                 return (
                   <button
@@ -105,9 +105,7 @@ export function SetupCodeView({ language }: SetupCodeViewProps) {
                     }`}
                   >
                     <span className="truncate">{file.path}</span>
-                    <span className={isSelected ? 'text-slate-400' : 'text-slate-400'}>
-                      {file.language}
-                    </span>
+                    <span className="text-slate-400">{file.language}</span>
                   </button>
                 );
               })}
@@ -116,7 +114,7 @@ export function SetupCodeView({ language }: SetupCodeViewProps) {
             <div className="rounded-xl border border-slate-200 bg-white p-4 space-y-2">
               <div className="text-xs font-semibold text-slate-700">{t.quickCommandsLabel}</div>
               <pre className="overflow-x-auto rounded-lg bg-slate-950 p-3 font-mono text-xs text-slate-200">
-                {`npm install\nnpm run mcp:stdio\n\n# Claude Code CLI:\nclaude mcp add akakce-mcp -- npx tsx $(pwd)/src/stdio.ts`}
+                {`npm install\nnpm run mcp:stdio\n\n# Claude Code CLI:\nclaude mcp add aktuel-mcp -- npx tsx $(pwd)/src/stdio.ts`}
               </pre>
             </div>
           </div>

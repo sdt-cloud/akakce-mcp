@@ -25,7 +25,8 @@ export function Sidebar({
   const toolStrings = TRANSLATIONS[language].tools;
 
   const navItems: Array<{ id: WorkspaceTab; label: string }> = [
-    { id: 'search', label: t.sections.search },
+    { id: 'catalog', label: t.sections.catalog },
+    { id: 'brochures', label: t.sections.brochures },
     { id: 'playground', label: t.sections.playground },
     { id: 'setup', label: t.sections.setup },
   ];
@@ -69,7 +70,7 @@ export function Sidebar({
                       : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900'
                   }`}
                 >
-                  {item.label}
+                  <span className="truncate">{item.label}</span>
                 </button>
               );
             })}
@@ -113,7 +114,7 @@ export function Sidebar({
           </div>
           <div className="flex items-center justify-between gap-2">
             <span>{t.targetSite}</span>
-            <span className="font-mono text-slate-800">akakce.com</span>
+            <span className="font-mono text-slate-800">BİM · A101 · ŞOK</span>
           </div>
           <div className="flex items-center justify-between gap-2">
             <span>{t.currency}</span>

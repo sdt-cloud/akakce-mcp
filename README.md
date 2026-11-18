@@ -1,60 +1,33 @@
-# Akakçe MCP (Resmi Olmayan / Unofficial)
+# aktuel-mcp
 
-> **Önemli Not:** Bu proje **Akakçe.com** ile hiçbir resmi bağı, ortaklığı veya onayı olmayan; yalnızca eğitim, araştırma ve kişisel kullanım amacıyla geliştirilmiş **resmi olmayan (unofficial)** bir Model Context Protocol (MCP) sunucusudur.
+**BİM, A101 ve ŞOK** marketlerinin haftalık aktüel ürün kataloglarını, fiyatlarını, geçerlilik tarihlerini ve broşür görsellerini canlı ayrıştırıp yapay zeka istemcilerine (Claude Desktop, Cursor, Gemini CLI vb.) sunan **Model Context Protocol (MCP)** sunucusu.
 
-Gerçek zamanlı olarak kamuya açık fiyat sayfalarını sorgulayan MCP sunucusu ve web arayüzü.
+## Sağlanan MCP Araçları
 
-## Özellikler
-- **`akakce_search`**: Akakçe.com canlı ürün araması (`popularity`, `lowest_price` / `s=2`, `highest_price` / `s=4`, kategori yönlendirmeli `,sayfa,sıra.html` desteği, `25/50/100` sayfalama ve `fetchAll` ile tüm sayfaları tarama).
-- **`akakce_get_product_offers`**: Seçilen ürünün tüm mağaza tekliflerini (`n11`, `Hepsiburada`, `Trendyol`, `Amazon`, `İdefix`, `PttAVM` vb.), kargo ve stok durumunu, varyantlarını ve teknik özelliklerini çeker *(en hızlı sonuç için doğrudan `akakceUrl` parametresi kullanmanız önerilir; soğuk oturumda sayısal `productId` de desteklenir)*.
-- **`akakce_get_price_history`**: Resmi Akakçe fiyat geçmişi tablosunu çıkarır *(doğrudan `akakceUrl` önerilir)*.
-- **`akakce_autocomplete`**: `api6.akakce.com/autocomplete` üzerinden anlık öneriler döndürür.
-- **`akakce_compare_product_prices`**: Arama sonuçlarındaki ilk N ürünün satıcı tekliflerini paralel karşılaştırır.
+1. `aktuel_bu_hafta(market, onlyActiveOrUpcoming?, limitPerMarket?, forceRefresh?)`
+   Seçilen marketin (veya hepsinin) güncel haftalık aktüel kataloğunu, kampanya tarihlerini ve broşür bilgilerini döndürür.
+2. `aktuel_urun_ara(query, market?, sortBy?, timing?, limit?)`
+   Türkçe karakter uyumlu, yazım hatası toleranslı (fuzzy) ve eş anlamlı (`kettle → su ısıtıcı`, `airfryer → yağsız fritöz`) arama ile istenen ürünün bu hafta hangi markete kaç TL'den geldiğini listeler.
+3. `aktuel_kategori(kategori, market?, sortBy?, limit?)`
+   `elektronik`, `mutfak`, `kamp`, `ev_yasam`, `yapi_oto`, `oyuncak`, `giyim`, `gida` kategorilerindeki fırsatları karşılaştırır.
+4. `aktuel_takvim(market?, gun?, durum?)`
+   Salı–Cumartesi döngüsündeki aktif ve yaklaşan aktüel kampanya tarihlerini listeler.
+5. `aktuel_liste_tara(items, market?)`
+   Çoklu ihtiyaç listesini tek seferde 3 markette tarayıp en ucuz eşleşmeleri ve tahmini sepet toplamını hesaplar.
+6. `aktuel_brosurler(market?, forceRefresh?)`
+   Haftalık broşür sayfalarının yüksek çözünürlüklü görsel URL'lerini döndürür.
+7. `aktuel_piyasa_karsilastir(query, market?)`
+   Bulunan aktüel ürünün fiyatını Akakçe'deki canlı çevrimiçi piyasa fiyatıyla kıyaslar.
 
----
+## Web Konsolu & Broşür Görüntüleyici
+- **Canlı Katalog & Akakçe Kıyaslama:** Ürün arama sonuçlarında tek tıkla Akakçe online piyasa kıyaslaması ve **Broşürde Gör** modalı.
+- **Yakınlaştırılabilir Broşür Modalı (`POST /api/brochures/locate-products`):** Tıklanan ürünün orijinal katalog sayfasındaki konumunu talep üzerine (`gemini-4-hydrogen`) bounding box ile işaretler ve önbelleğe alır.
 
-## Debian / Linux Kurulumu
+## Çalıştırma
 
 ```bash
-git clone https://github.com/sdt-cloud/akakce-mcp.git
-cd akakce-mcp
 npm install
+npm run dev        # Web konsolu + POST /mcp (port 3000)
+npm run mcp:stdio  # Claude Desktop / Cursor için stdio MCP sunucusu
 ```
-
-### 1. Antigravity & Antigravity CLI (`stdio`)
-`~/.gemini/antigravity/mcp_config.json` dosyasına ekleyin:
-
-```json
-{
-  "mcpServers": {
-    "akakce-mcp": {
-      "command": "npx",
-      "args": ["tsx", "/home/KULLANICI_ADIN/akakce-mcp/src/stdio.ts"]
-    }
-  }
-}
-```
-
-### 2. Claude Code CLI
-```bash
-claude mcp add akakce-mcp -- npx tsx "$PWD/src/stdio.ts"
-```
-
-### 3. Web Arayüzü + HTTP MCP (`POST /mcp`)
-```bash
-npm run dev
-# Web arayüzü: http://localhost:3000
-# MCP HTTP ucu: http://localhost:3000/mcp
-```
-
----
-
-## Yasal Uyarı ve Sorumluluk Reddi (Legal Disclaimer)
-
-- **Resmi Olmayan Proje / Marka Bildirimi**: Bu proje bağımsız ve açık kaynaklı bir Model Context Protocol (MCP) entegrasyon örneğidir. **Akakçe.com** veya bağlı kuruluşları ile hiçbir resmi bağı, ortaklığı, sponsorluğu veya onayı bulunmamaktadır. "Akakçe" adı ve markası ilgili hak sahibine aittir; burada yalnızca hedeflenen kamuya açık web arayüzünü tanımlamak amacıyla kullanılmıştır.
-- **Yalnızca Eğitim, Araştırma ve Kişisel Kullanım**: Bu yazılım yalnızca kişisel fiyat takibi, geliştirici eğitimi ve teknik MCP protokolü araştırması amacıyla sunulmuştur. Ticari veri toplama, fiyat verilerinin yeniden satışı veya üçüncü taraf platformların altyapısına aşırı yük bindirecek (yüksek frekanslı / otomatik bot) kullanımlar amaçlanmamıştır.
-- **Hedef Site Kullanım Koşullarına Uyum**: Bu aracı çalıştıran her kullanıcı; hedef web sitesinin kullanım koşullarına (Terms of Service), `robots.txt` kurallarına, hız sınırlarına (rate limiting) ve yürürlükteki yerel/uluslararası mevzuata uymakla kendisi yükümlüdür.
-- **Sorumluluk Reddi ("OLDUĞU GİBİ" / "AS IS")**: Yazılım [MIT Lisansı](./LICENSE) kapsamında **"OLDUĞU GİBİ"** ve hiçbir açık ya da zımni garanti verilmeksizin sunulmaktadır. Bu yazılımın kullanımından, yanlış/eksik fiyat bilgisinden, IP/erişim kısıtlamalarından veya üçüncü taraf kullanım koşullarının ihlalinden doğabilecek hiçbir doğrudan veya dolaylı zarardan proje geliştiricileri veya katkıda bulunanlar sorumlu tutulamaz. Tüm risk ve sorumluluk aracı kullanan son kullanıcıya aittir.
-
-> **English Notice**: This is an unofficial, independent open-source MCP project provided **strictly for educational, research, and personal use** under the [MIT License](./LICENSE) **"AS IS" without warranty of any kind**. It is not affiliated with, endorsed by, or connected to Akakçe. Users are solely responsible for complying with the target website's Terms of Service, rate limits, and applicable laws. The authors assume no liability for any misuse or damages arising from using this software.
 
