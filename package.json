@@ -1,5 +1,6 @@
 {
   "name": "akakce-mcp",
+  "description": "Resmi olmayan (unofficial), yalnızca eğitim ve kişisel kullanım amaçlı Akakçe MCP sunucusu.",
   "private": true,
   "version": "1.0.0",
   "license": "MIT",

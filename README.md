@@ -1,6 +1,8 @@
-# Akakçe MCP
+# Akakçe MCP (Resmi Olmayan / Unofficial)
 
-Gerçek zamanlı olarak `akakce.com` ve `api6.akakce.com/autocomplete` uç noktalarını sorgulayan Model Context Protocol (MCP) sunucusu ve web arayüzü.
+> **Önemli Not:** Bu proje **Akakçe.com** ile hiçbir resmi bağı, ortaklığı veya onayı olmayan; yalnızca eğitim, araştırma ve kişisel kullanım amacıyla geliştirilmiş **resmi olmayan (unofficial)** bir Model Context Protocol (MCP) sunucusudur.
+
+Gerçek zamanlı olarak kamuya açık fiyat sayfalarını sorgulayan MCP sunucusu ve web arayüzü.
 
 ## Özellikler
 - **`akakce_search`**: Akakçe.com canlı ürün araması (`popularity`, `lowest_price` / `s=2`, `highest_price` / `s=4`, kategori yönlendirmeli `,sayfa,sıra.html` desteği, `25/50/100` sayfalama ve `fetchAll` ile tüm sayfaları tarama).
