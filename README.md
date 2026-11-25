@@ -4,6 +4,39 @@
 
 Gerçek zamanlı olarak kamuya açık fiyat sayfalarını sorgulayan MCP sunucusu ve web arayüzü.
 
+## Hızlı kurulum
+
+Claude ve ChatGPT için uzak MCP sunucusu, **Streamable HTTP** üzerinden şu adreste çalışır. Akakçe hesabı veya API anahtarı gerekmez.
+
+```text
+https://akakce-mcp.vercel.app/mcp
+```
+
+### Claude
+
+1. Claude web’de **Customize → Connectors** bölümünü açın.
+2. **+ Add → Custom → Web** seçeneğini seçin.
+3. Adı **Akakçe MCP** olarak girin, yukarıdaki MCP adresini yapıştırın ve **Continue** seçeneğine basın.
+4. Kimlik doğrulama ekranı açılırsa **No sign in** seçin ve bağlayıcıyı ekleyin.
+5. Sohbet kutusundaki **+ → Connectors** menüsünden **Akakçe MCP**’yi etkinleştirin.
+
+Claude Free planında bir özel bağlayıcı eklenebilir. [Claude özel bağlayıcı yardım sayfası](https://support.claude.com/en/articles/11175166-get-started-with-custom-connectors-using-remote-mcp)
+
+### ChatGPT
+
+1. ChatGPT web’de **Plugins (Eklentiler) → + → Add custom MCP server** bölümünü açın.
+2. Ad olarak **Akakçe MCP**, bağlantı olarak yukarıdaki MCP adresini girin. Kimlik doğrulama seçeneği varsa **No authentication** seçin.
+3. Sunucu uyarısını inceleyip **Create as a plugin** seçeneğiyle devam edin. Araç listesinde `akakce_search` ve `akakce_get_product_offers` göründüğünü kontrol edin.
+4. Eklentiyi kurun, yeni sohbet açın ve mesaj kutusuna **@** yazarak **Akakçe MCP**’yi seçin.
+
+Özel MCP ekleme menüsü hesap planına ve çalışma alanı izinlerine göre değişir. **Add custom MCP server** seçeneği görünmüyorsa, hesabınız için sunulan seçenekleri kontrol edin. [ChatGPT özel MCP kurulum kılavuzu](https://help.openai.com/en/articles/12584461-connecting-custom-mcp-servers-in-chatgpt)
+
+### İlk sorgu
+
+> Akakçe MCP’yi kullanarak RX 9060 XT 16 GB modellerini ara. En ucuz üç modeli fiyat, satıcı, stok ve Akakçe ürün bağlantısıyla listele. Yalnızca 16 GB modellerini dahil et.
+
+`/mcp` adresi yapay zekâ istemcileri içindir. Tarayıcıda doğrudan açıldığında `405 Method Not Allowed` dönmesi beklenir. Bağlantıyı bağlayıcı kurulum ekranında test edin.
+
 ## Özellikler
 - **`akakce_search`**: Akakçe.com canlı ürün araması (`popularity`, `lowest_price` / `s=2`, `highest_price` / `s=4`, kategori yönlendirmeli `,sayfa,sıra.html` desteği, `25/50/100` sayfalama ve `fetchAll` ile tüm sayfaları tarama).
 - **`akakce_get_product_offers`**: Seçilen ürünün tüm mağaza tekliflerini (`n11`, `Hepsiburada`, `Trendyol`, `Amazon`, `İdefix`, `PttAVM` vb.), kargo ve stok durumunu, varyantlarını ve teknik özelliklerini çeker *(en hızlı sonuç için doğrudan `akakceUrl` parametresi kullanmanız önerilir; soğuk oturumda sayısal `productId` de desteklenir)*.
@@ -16,7 +49,7 @@ Gerçek zamanlı olarak kamuya açık fiyat sayfalarını sorgulayan MCP sunucus
 ## Debian / Linux Kurulumu
 
 ```bash
-git clone https://github.com/sdt-cloud/akakce-mcp.git
+git clone --branch akakce-vercel https://github.com/sdt-cloud/akakce-mcp.git
 cd akakce-mcp
 npm install
 ```
