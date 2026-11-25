@@ -20,6 +20,26 @@ const BROWSER_HEADERS = {
   'Accept-Language': 'tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7',
 };
 
+const AKAKCE_HOSTS = new Set(['akakce.com', 'www.akakce.com', 'api6.akakce.com']);
+
+async function fetchAkakce(target: string, options: RequestInit): Promise<Response> {
+  let url = new URL(target);
+  for (let redirects = 0; redirects <= 4; redirects += 1) {
+    if (url.protocol !== 'https:' || url.username || url.password || url.port ||
+        !AKAKCE_HOSTS.has(url.hostname)) {
+      throw new Error('Yalnızca HTTPS Akakçe adresleri destekleniyor.');
+    }
+    const response = await fetch(url, { ...options, redirect: 'manual' });
+    const location = response.headers.get('location');
+    if (![301, 302, 303, 307, 308].includes(response.status) || !location) {
+      return response;
+    }
+    await response.body?.cancel();
+    url = new URL(location, url);
+  }
+  throw new Error('Akakçe yönlendirme sınırına ulaşıldı.');
+}
+
 const CACHE_TTL_MS = 1000 * 60 * 5; // 5 minutes
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 const SEARCH_CACHE = new Map<string, { expiresAt: number; data: AkakceSearchResponse }>();
@@ -274,7 +294,7 @@ function buildSearchPageUrl(options: {
 async function fetchHtmlWithRetry(targetUrl: string): Promise<{ finalUrl: string; html: string }> {
   let res: Response | null = null;
   for (let attempt = 0; attempt < 3; attempt += 1) {
-    res = await fetch(targetUrl, {
+    res = await fetchAkakce(targetUrl, {
       headers: BROWSER_HEADERS,
       signal: AbortSignal.timeout(12000),
     });
@@ -584,7 +604,7 @@ export async function autocompleteAkakce(query: string): Promise<{
   }
 
   const url = `${AKAKCE_AC_URL}?q=${encodeURIComponent(trimmed)}`;
-  const res = await fetch(url, {
+  const res = await fetchAkakce(url, {
     headers: {
       ...BROWSER_HEADERS,
       Accept: 'application/json',
@@ -686,7 +706,7 @@ export async function getAkakceProductDetails(
     return { ...cached.data, fromCache: true };
   }
 
-  const res = await fetch(targetUrl, {
+  const res = await fetchAkakce(targetUrl, {
     headers: BROWSER_HEADERS,
     signal: AbortSignal.timeout(10000),
   });
