@@ -1,5 +1,7 @@
 # aktuel-mcp
 
+**Akakçe MCP kurulumu** · Akakçe.com’da ürün aramak ve satıcı fiyatlarını karşılaştırmak için [Claude ve ChatGPT kurulum rehberine](https://github.com/sdt-cloud/akakce-mcp/tree/akakce-vercel#h%C4%B1zl%C4%B1-kurulum) bakın.
+
 **BİM, A101 ve ŞOK** marketlerinin haftalık aktüel ürün kataloglarını, fiyatlarını, geçerlilik tarihlerini ve broşür görsellerini canlı ayrıştırıp yapay zeka istemcilerine (Claude Desktop, Cursor, Gemini CLI vb.) sunan **Model Context Protocol (MCP)** sunucusu.
 
 ## Sağlanan MCP Araçları
